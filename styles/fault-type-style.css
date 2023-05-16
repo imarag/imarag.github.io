@@ -1,0 +1,13 @@
+.pre-code {
+    white-space: pre-line;
+}
+
+.row {
+    margin-top: 40px;
+}
+
+#fault-types-thumbnail {
+    width: 100px;
+    height: 80px;
+}
+

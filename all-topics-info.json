@@ -1,0 +1,34 @@
+{
+    "all-topics":[
+       {
+          "title":"General concepts",
+          "description":"An introduction to the concepts of Seismology and earthquakes",
+          "image-url":"/images/all-topics-images/general-seismology-small-no-bg.png",
+          "page-url": "/pages/seismology-intro-page.html"
+       },
+       {
+         "title":"Obspy",
+         "description":"A Python framework to process seismological data.",
+         "image-url":"/images/all-topics-images/obspy-small-no-bg.png",
+         "page-url": "/pages/obspy-page.html"
+      },
+       {
+          "title":"Site effect",
+          "description":"The effect of the underground Geology to the surface of the ground.",
+          "image-url":"/images/all-topics-images/site-effect-small-no-bg.png",
+          "page-url": "/pages/fault-type-page.html"
+       },
+       {
+          "title":"Fault types",
+          "description":"Information about the type of faults and their characteristics.",
+          "image-url":"/images/all-topics-images/fault-type-small-no-bg.png",
+          "page-url": "/pages/fault-type-page.html"
+       },
+       {
+         "title":"Seismic waves",
+         "description":"About the types of seismic waves and their arrival times.",
+         "image-url":"/images/all-topics-images/waves-small-no-bg.png",
+         "page-url": "/pages/seismic-waves-page.html"
+      }
+    ]
+ }

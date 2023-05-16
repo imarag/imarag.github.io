@@ -1,0 +1,27 @@
+#main-index-background-image {
+    background-image: url("/images/index-images/main-background-image.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+
+.img--hover-action:hover  {
+    border: solid 2px black; 
+    border-radius: 8px;
+    text-shadow: 4px 2px 2px #000000;
+}
+
+
+#index-questions-div-position {
+    position: relative;
+    top: 120px;
+}
+
+#index-div-margin {
+    margin-top: 150px;
+    margin-bottom: 200px;
+}
+
+section {
+    margin-bottom: 100px;
+}

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+        <link href="/styles/main-style.css" rel="stylesheet">
+  
+        <title>My Webpage</title>
+
+    </head>
+    <body>
+        
+        <header id="header-placeholder">
+            
+        </header>
+
+        <main class="main-block">
+            <div class="container-lg ">
+
+                <section>
+                    <div class="row justify-content-center align-items-center">
+                            <h1 class="main-block__title main-block__title--large">
+                                <a href="https://docs.obspy.org/" class="main-block__link">
+                                    <img src="/images/obspy-images/obspy-image-no-bg.png" alt="mseed record ASCII file" class="main-block__img main-block__img--small">
+                                </a>
+                                What is Obspy ?
+                            </h1>
+                    </div>
+
+    
+                    <div class="main-block__intro-div">
+                        <p>Obspy is a Python library for seismological data processing. It provides many seismological signal processing functions as well as date and time manipulation.</p>
+                    </div>
+
+                    <div class="main-block__badges-div">
+                        <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html"><span class="main-block__badges">Stream</span></a>
+                        <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html"><span class="main-block__badges">Trace</span></a>
+                        <a href="https://docs.obspy.org/tutorial/code_snippets/utc_date_time.html"><span class="main-block__badges">UTCDateTime</span></a>
+                        <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.read.html"><span class="main-block__badges">read</span></a>
+                        <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Stats.html"><span class="main-block__badges">stats</span></a>
+                    </div>
+                    <hr>
+                </section>
+                        
+                <section>
+
+
+                    <p class="main-block__title main-block__title--medium">Basic structure</p>
+
+                    <p>
+                        The main structure of the Obspy library consists of the <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" class="main-block__link">Trace</a> and the <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" class="main-block__link">Stream</a> objects.
+                        The <span class="main-block__font-code">Stream</span> object contains one or more <span class="main-block__font-code">trace</span> objects. The <span class="main-block__font-code">trace</span> is in a sense, a seismic record or trace. Every <span class="main-block__font-code">Trace</span> has the <span class="main-block__font-code">.data</span> property that is the data of the record in <span class="main-block__font-code">ndarray</span> and the <span class="main-block__font-code">.stats</span> property that points to a 
+                        dict-like object with name and value pairs of metadata information (eg. station, channel, sampling-rate). In addition, a <span class="main-block__font-code">trace</span> object contains some methods to manipulate the record. Some examples of these methods include the filtering of the data in a specific frequency range, using the <span class="main-block__font-code">.filter()</span> method and the 
+                        splitting of the data array into a specific range utilizing the <span class="main-block__font-code">.trim()</span> method. Last but not least, you can use the <span class="main-block__font-code">obspy.core.read</span> command to read any seismological file type.
+                    </p>
+
+                    <img src="/images/obspy-images/obspy-structure.png" alt="mseed record ASCII file" class="main-block__img main-block__img--large">
+
+                    <p>First let's import the necessary libraries:</p>
+
+                    <div class="main-block__input-code-block">
+                        <span>from obspy.core import read, UTCDatetime</span>
+                        <span>from obspy.core.stream import Stream</span>
+                        <span>from obspy.core.trace import Trace</span>
+                        <span>from obspy.core import Stream</span>
+                        <span>import matplotlib.pyplot as plt</span>
+                        <span>import numpy as np</span>
+                    </div>
+
+                    <p>Next, import a seismogram into a <span class="main-block__font-code">stream</span> object, using the <span class="main-block__font-code">read()</span> method and get one of its traces:</p>
+
+                    <div class="main-block__input-code-block">
+                        <span># read a stream that contains just one trace </span>
+                        <span>singlechannel-stream = read('https://examples.obspy.org/COP.BHZ.DK.2009.050')</span>
+                        <span>print(singlechannel-stream)</span>
+                        <span>print()</span>
+                        <span># get the first and only trace of the stream</span>
+                        <span>singlechannel-trace = stream[0]</span>
+                        <span>print(singlechannel-trace.data, type(singlechannel-trace.data))</span>
+                    </div>
+
+                    <div class="main-block__output-code-block">
+                        1 Trace(s) in Stream:
+                        DK.COP..BHZ | 2009-02-19T00:00:00.025100Z - 2009-02-19T23:59:59.975100Z | 20.0 Hz, 1728000 samples
+                    </div>
+
+                    <p>Then get the data and the metadata of the trace using the <span class="main-block__font-code">.data</span> and the <span class="main-block__font-code">.stats</span> attributes respectively:</p>
+
+                    <div class="main-block__input-code-block">
+                        <span># print the data of the trace</span>
+                        <span>print(singlechannel-trace.data)</span>
+                        <span>print()</span>
+                        <span># print its metadata</span>
+                        <span>print(singlechannel-trace.stats)</span>
+                    </div>
+
+                    <div class="main-block__output-code-block">
+                            [-351 -316 -550 ...  -95  -58  -38] &ltclass 'numpy.ndarray'&gt
+                            
+                            network: DK
+                            station: COP
+                            location:
+                            channel: BHZ
+                            starttime: 2009-02-19T00:00:00.025100Z
+                            endtime: 2009-02-19T23:59:59.975100Z
+                            sampling-rate: 20.0
+                            delta: 0.05
+                            npts: 1728000
+                            calib: 1.0
+                            -format: MSEED
+                            mseed: AttribDict({'dataquality': 'D', 'number-of-records': 552, 'encoding': 'STEIM2', 'byteorder': '>', 'record-length': 4096, 'filesize': 2260992})
+                    </div>
+
+                    <p>The <span class="main-block__font-code">starttime</span> and <span class="main-block__font-code">endtime</span> metadata of the <span class="main-block__font-code">trace</span> object, is a special object in Obspy. It is a <span class="main-block__font-code">UTCDateTime</span> object. You can perform addition, subtraction and extract multiple attributes from this object using the dot notation. Check the following examples:</span></p>
+
+                    <div class="main-block__input-code-block">
+                        <span># create a UTCDateTime object</span>
+                        <span>dt = UTCDateTime("2012-09-07T12:15:00")</span>
+                        <span>print(dt, type(dt))</span>
+                        <span># add 20 seconds</span>
+                        <span>dt += 20</span>
+                        <span>print(dt)</span>
+                        <span>print()</span>
+        
+                        <span># get some datetime attributes</span>
+                        <span>print("dt.year      -> ", dt.year)</span>
+                        <span>print("dt.month     -> ", dt.month)</span>
+                        <span>print("dt.day       -> ", dt.day)</span>
+                        <span>print("dt.hour      -> ", dt.hour)</span>
+                        <span>print("dt.minute    -> ", dt.minute)</span>
+                        <span>print("dt.second    -> ", dt.second)</span>
+                        <span>print("dt.timestamp -> ", dt.timestamp)</span>
+                        <span>print("dt.weekday   -> ", dt.weekday)</span>
+                    </div>
+
+                    <div class="main-block__output-code-block">
+                        2012-09-07T12:15:00.000000Z &ltclass 'obspy.core.utcdatetime.UTCDateTime'>
+
+                        2012-09-07T12:15:20.000000Z
+
+                        dt.year      ->  2012
+                        dt.month     ->  9
+                        dt.day       ->  7
+                        dt.hour      ->  12
+                        dt.minute    ->  15
+                        dt.second    ->  20
+                        dt.timestamp ->  1347020120.0
+                        dt.weekday   ->  4
+                    </div>
+                    
+
+                    <p>Last but not least, one can subtract <span class="main-block__font-code">UTCDateTime</span> objects and get the difference of them in seconds:</p>
+
+                    <div class="main-block__input-code-block">
+                        <span># create another UTCDateTime object</span>
+                        <span>dt2 = UTCDateTime("2012-09-07T12:20:00")</span>
+                        <span>print(dt2)</span>
+                        <span>print()</span>
+                        <span># calculate the difference of the two UTCDateTime objects</span>
+                        <span>diff = dt2 - dt</span>
+                        <span>print(diff)</span>
+                    </div>
+    
+                    <div class="main-block__output-code-block">
+                        2012-09-07T12:20:00.000000Z
+
+                        280.0
+                    </div>
+                </section>
+
+                <section>
+
+                    <p class="main-block__title main-block__title--medium">Generating Trace and Stream objects from data</p>
+
+                    <p>
+                        Instead of reading from a seismological file format, one can create a <span class="main-block__font-code">trace</span> and/or <span class="main-block__font-code">stream</span> object using the <span class="main-block__font-code">obspy.core.trace.Trace</span> and <span class="main-block__font-code">obspy.core.stream.Stream</span> classes.
+                        Let's remember again, that a <span class="main-block__font-code">stream</span> consists of traces. For this reason, we need to create a <span class="main-block__font-code">trace</span> object first. This is possible by passing the data values into the <span class="main-block__font-code">data</span> parameter as an numpy <span class="main-block__font-code">ndarray</span>
+                        and the metadata of the record into the <span class="main-block__font-code">header</span> parameter as a <span class="main-block__font-code">dict</span> Python structure. Repeat this for as many traces as you need to create and then pass all of them as a Python <span class="main-block__font-code">list</span>, through the <span class="main-block__font-code">obspy.core.stream.Stream</span> class,
+                        to generate a <span class="main-block__font-code">stream</span> object. Let's check an example of this.
+                    </p>
+
+                    <p>
+                        Suppose we have a seismic record with 3 channels (E, N, Z), recorded in LEF2 station in a text file. Its metadata are located in the first rows of the file
+                        and the data of each component, after 9 lines of metadata. We are going to read this file and create a <span class="main-block__font-code">stream</span> object with 3 traces.
+                    </p>
+
+                    <p>
+                        First we read the file and save its metadata in a dictionary form and its data into a numpy <span class="main-block__font-code">ndarray</span> form:
+                    </p>
+
+                    <div class="main-block__input-code-block">
+                        <span># use the Python open method to open the file and read its metadata</span>
+                        <span>with open('20140207-085940-LEF2-data.txt') as fr:</span>
+                        <span>&nbsp&nbsp&nbsp&nbspfr.readline()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspstation = fr.readline().split(':')[1].strip()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdt-start = fr.readline().split(':', 1)[1].strip()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspfs = fr.readline().split(':')[1].strip(' Hz\n')</span>
+                        <span>&nbsp&nbsp&nbsp&nbspnpts = fr.readline().split(':')[1].strip()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspfr.readline()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspfr.readline()</span>
+                        <span>&nbsp&nbsp&nbsp&nbspcompos = fr.readline().split(':')[1].split()</span>
+                        <span>print(station, dt-start, fs, npts, compos)</span>
+                    </div>
+
+
+                    <div class="main-block__output-code-block">
+                        LEF2 2014-02-07T08:59:40.000000Z 100.0 18100 ['E', 'N', 'Z']
+                    </div>
+
+                    <p>
+                        Before we add the metadata into the dictionary, we convert the number of points (<span class="main-block__font-code">npts</span>) into an <span class="main-block__font-code">int</span> datatype, the
+                        sampling frequency (<span class="main-block__font-code">fs</span>) into a <span class="main-block__font-code">float</span> datatype and the start time of the record (<span class="main-block__font-code">starttime</span>) into a <span class="main-block__font-code">UTCDateTime</span> object.
+                        Also it is important for the keys of the dictionary, to be one of the <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Stats.html" class="main-block__link"><span class="main-block__font-code">obspy.core.trace.Stats</span></a> attributes.
+                    </p>
+
+                    <p>
+                        Then we use the python Pandas library to read the data of the record:
+                    </p>
+
+                    <div class="main-block__input-code-block">
+                        <span># use the Pandas read-csv method to read the data from text file</span>
+                        <span>df-data = pd.read-csv('20140207-085940-LEF2-data.txt', skiprows=10, sep='\s+',  header=None)</span>
+                        <span># assign the previous compos list into the columns</span>
+                        <span>df-data.columns = compos</span>
+                        <span>print(df-data)</span>
+                    </div>
+
+
+                    <div class="main-block__output-code-block">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspE         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspN         &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspZ
+                                0      0.001130 -0.001022 -0.000044
+                                1     -0.001382  0.001791 -0.001298
+                                2      0.001758 -0.000709 -0.001298
+                                3      0.002072  0.000853 -0.006627
+                                4      0.000188 -0.001022 -0.007254
+                                ...         ...       ...       ...
+                                18095 -0.003894  0.000853  0.002464
+                                18096  0.001444  0.001478  0.006853
+                                18097  0.000816  0.001791  0.008420
+                                18098 -0.000754  0.002416  0.005286
+                                18099  0.000816  0.001478  0.001210
+                                
+                                [18100 rows x 3 columns]
+                    </div>
+
+
+                    <p>
+                        At this time we have the metadata and the data of the traces. Using these two parameters, we can create the <span class="main-block__font-code">trace</span> objects. To do this, loop trough the components, create a header dictionary file for each <span class="main-block__font-code">trace</span> and add its data:
+                    </p>
+
+                    <img src="/images/obspy-images/record-txt-file.png" alt="mseed record ASCII file" class="main-block__img main-block__img--large">
+
+                    <div class="main-block__input-code-block">
+                        <span># create an empty list to append each trace object</span>
+                        <span>lt-traces = []</span>
+                        <span># then create a trace for each component</span>
+                        <span>for compo in compos:</span>
+                        <span>&nbsp&nbsp&nbsp&nbsp# create a dictionary object and add there the metadata</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header = {}</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header["station"] = station</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header["npts"] = int(npts)</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header["sampling-rate"] = float(fs)</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header["starttime"] = UTCDateTime(dt-start)</span>
+                        <span>&nbsp&nbsp&nbsp&nbspdict-header["channel"] = compo</span>
+                        <span>&nbsp&nbsp&nbsp&nbsp</span>
+                        <span>&nbsp&nbsp&nbsp&nbsp# create the trace object</span>
+                        <span>&nbsp&nbsp&nbsp&nbsptr = Trace(data=df-data[compo].to-numpy(), header=dict-header)</span>
+                        <span>&nbsp&nbsp&nbsp&nbsp# append the trace into the traces list</span>
+                        <span>&nbsp&nbsp&nbsp&nbsplt-traces.append(tr)</span>
+                        <span>print(lt-traces)</span>
+                    </div>
+
+                    <div class="main-block__output-code-block">
+                        [
+                            &ltobspy.core.trace.Trace object at 0x0000020E0EFB25F0>, 
+                            &ltobspy.core.trace.Trace object at 0x0000020E0F501FC0>, 
+                            &ltobspy.core.trace.Trace object at 0x0000020E0F502890>
+                        ]
+                    </div>
+                    
+
+                    <p>Finally, crete the <span class="main-block__font-code">stream</span> object, from the list of the traces:</p>
+
+
+                    <div class="main-block__input-code-block">
+                        <span># create the stream by inserting the list of traces into the obspy.core.stream.Stream class</span>
+                        <span>st = Stream(lt-traces)</span>
+                        <span>print(st)</span>
+                    </div>
+
+                    <div class="main-block__output-code-block">
+                        3 Trace(s) in Stream:
+                        .LEF2..E | 2014-02-07T08:59:40.000000Z - 2014-02-07T09:02:40.990000Z | 100.0 Hz, 18100 samples
+                        .LEF2..N | 2014-02-07T08:59:40.000000Z - 2014-02-07T09:02:40.990000Z | 100.0 Hz, 18100 samples
+                        .LEF2..Z | 2014-02-07T08:59:40.000000Z - 2014-02-07T09:02:40.990000Z | 100.0 Hz, 18100 samples
+                    </div>
+
+
+                    <p>You can optionally save it using the <span class="main-block__font-code">stream.write('url/to/write/to')</span>:</p>
+
+
+                    <div class="main-block__input-code-block">
+                        <span># optionally, save the stream into the current working directory</span>
+                        <span>st.write('mystream.mseed')</span>
+                    </div>
+
+                    <p>You can also plot the traces using the <span class="main-block__font-code">stream.plot()</span> method:</p>
+
+                    <div class="main-block__input-code-block">
+                        <span>st.plot()</span>
+                    </div>
+
+                    <img src="/images/obspy-images/stream-plot.png" alt="mseed record ASCII file" class="main-block__img main-block__img--large">
+
+
+
+                    <p>Check <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.plot.html#obspy.core.stream.Stream.plot" class="main-block__link">here</a> the different options to customize the plot.</p>
+                </section>
+
+            </div>
+
+
+        </main>
+
+        <script>
+            fetch('/templates/header-template.html')
+          .then(response => response.text())
+          .then(data => {
+              document.getElementById('header-placeholder').innerHTML = data;
+          })
+          .catch(error => {
+              console.log('Error fetching nav-base.html:', error);
+          });
+        </script>
+    </body>
+</html>
