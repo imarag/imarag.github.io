@@ -14,11 +14,17 @@
         </header>
 
         <style>
+
+            #header {
+                margin: 0px;
+            }
             .search-box {
                 display: block;
-                margin: auto;
+                margin: 0px auto;
                 text-align: center;
-                margin-bottom: 200px;
+                background-color: #615c5c;
+                color: white;
+                padding: 30px 0px;
             }
 
             .single-topic-div {
@@ -52,17 +58,31 @@
                 text-decoration: none;
             }
 
+            #search {
+                border-radius: 20px;
+                width: 350px;
+            }
+
+            #search-bt {
+                border-radius: 20px;
+                padding: 0px 30px;
+                background:  linear-gradient(#f4eded, #ffffff);
+            }
+
+
+
         </style>
 
 
-        <main class="main-block">
-            <div class="container-lg ">
+        <main class="main-block" style=" margin: 0px; padding: 0px;">
+            <div>
 
                 <div class="search-box">
-                    <p for="search">Search for a topic </p>
-                    <input type="text" id="search" name="search" placeholder="search for something">
-                    <input type="submit" value="search" id="search-bt" name="search-bt">
-                    
+                    <div class="container-lg">
+                        <p for="search">Search for a topic </p>
+                        <input type="text" id="search" name="search" placeholder="">
+                        <input type="submit" value="search" id="search-bt" name="search-bt">
+                    </div>
                 </div>
 
                 <div id="main-content">
