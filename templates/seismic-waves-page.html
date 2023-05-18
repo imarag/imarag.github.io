@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Seismic waves
+{% endblock %}
+
+{% block extcss %}
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-lg">
+
+
+        <section>
+            <div class="row justify-content-center align-items-center">
+                    <h1 class="main-block__title main-block__title--large">
+                        <a href="https://docs.obspy.org/" class="main-block__link">
+                            <img src="/static/img/seismic-waves-images/seismic-waves-no-bg.png" alt="mseed record ASCII file" class="main-block__img main-block__img--small">
+                        </a>
+                        Seismic waves
+                    </h1>
+            </div>
+
+
+            <div class="main-block__intro-div">
+                <p>The energy released from an earthquake, travels throught the inner layers of the earth as seismic waves until they are recorded at receivers at the surface of the earth.</p>
+            </div>
+
+            <div class="main-block__badges-div">
+                <a href="https://earthquake.usgs.gov/earthquakes/events/1906calif/18april/earthwaves.php"><span class="main-block__badges">Body waves</span></a>
+                <a href="https://www.mtu.edu/geo/community/seismology/learn/seismology-study/surface-wave/#:~:text=Surface%20waves%20travel%20more%20slowly,are%20reduced%20in%20deeper%20earthquakes."><span class="main-block__badges">Surface waves</span></a>
+                <a href="https://en.wikipedia.org/wiki/Travel-time_curve#:~:text=Travel%20Time%20(in%20Seismology)%20means,point%20and%20the%20travel%20time."><span class="main-block__badges">travel time</span></a>
+            </div>
+            <hr>
+        </section>
+
+                
+        <section>
+
+            <p class="main-block__title main-block__title--medium">Intoduction</p>
+
+            <p>
+                There are several kinds of seismic waves. The <i>body waves</i> that arrive first in the seismograph and can travel through the medium or inner layers of the earth, consist of the <i>P</i> or <i>compressional</i> and <i>S</i> or <i>shear waves</i>.
+                Another kind of waves are the <i>surface waves</i>. Surface waves travel only on the surface of the earth and decay with depth. One example of these waves are the <i>Love</i> and <i>Rayleigh</i> waves.
+            </p>         
+            
+            <img src="/static/img/seismic-waves-images/kind-of-waves.png" alt="mseed record ASCII file" class="main-block__img main-block__img--large">
+
+            <p>
+                Body waves are the first to observe in a seismogram. S waves are slower than the P waves.The velocity of the shear waves is about the 60% of the velocity of the compressional waves.
+                For this reason the first arrivals are always P waves, then the shear waves and lastly the surface waves.
+                This distinction is apparent in the seismogram in relatively high hypocentral distances from the source, where we observe different and steep amplitude changes.
+                The time distance between the P and S wave arrival time, mainly depends on the hypocentral distance. In great distances, the difference is larger and in shallower earthquakes, the two arrivals are very close to each other.
+                Other phases of P and S waves can also be recorded in the seismogram.
+
+            </p>  
+
+            <p class="main-block__title main-block__title--medium">Body waves</p>
+            
+            <p>
+                Body waves, consist of the <i>P</i> and the <i>S</i> waves. The P waves move in the same direction as the wave moves, that is in parallel to the wave propagation. The particle motion is forward and backward or in other words they <i>compress</i> and 
+                <i>dilatate</i>. On the other hand, the S waves, propagate perpendicular to the direction of motion. These waves can further be classified into <i>SH</i> and <i>SV</i> wave components, that is whether the propagation happens in the horizontal and 
+                perpendicular to the direction of motion, plane or the vertical and perpendicular to the direction of motion, plane, respectively.
+            </p>  
+
+
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">P waves</h2>
+                    <p>The propagation is parallel to the direction of motion</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/seismic-waves-images/p-waves.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+            
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">SH waves</h2>
+                    <p>The propagation is perpendicular to the direction of motion on the horizontal plane</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/seismic-waves-images/sh-waves.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">SV waves</h2>
+                    <p>The propagation is perpendicular to the direction of motion on the vertical plane</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/seismic-waves-images/sv-waves.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+            <p class="main-block__title main-block__title--medium">Surface waves</p>
+
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">Rayleigh waves</h2>
+                    <p>The waves move in an elliptical motion producing both horizontal and vertical component of the motion in the direction of propagation</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/seismic-waves-images/rayleigh-waves.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">Love waves</h2>
+                    <p>The waves move parallel to the Earth's surface and perpendicular to the direction of wave propagation</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/seismic-waves-images/love-waves.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    </section>
+
+{% endblock %}
+

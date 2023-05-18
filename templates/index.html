@@ -1,0 +1,200 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+    index
+{% endblock %}
+
+{% block extcss %}
+    <link rel="stylesheet" href="/static/css/index-style.css">
+{% endblock %}
+
+{% block content %}
+            
+    <section id="main-index-background-image">
+        <div class="container-lg">
+            <h2 class="pt-5 text-center text-light fw-bold display-1">Want to learn more about the science of <span >Seismology</span> ?</h2>
+            <div class="display-6 shadow-lg p-3 mb-0 bg-white rounded" id="index-questions-div-position">
+                <div class="row align-items-center justify-content-between mx-0 my-0 gy-4 gy-lg-0" style="font-size: 38px;">
+                    <div class="col-lg-4 align-self-start">
+                        About the different ways that can cause an earthquake ?
+                    </div>
+                    <div class="col-lg-4 align-self-start">
+                        About the contribution of the Python programming language to seismology ?
+                    </div>
+                    <div class="col-lg-4 align-self-start">
+                        About the impact of the underground Geology to the surface ?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </section>
+
+    
+    <section id="index-second-section-margin">
+        <div class="container-lg">
+            <div>
+                <h1 class="text-muted text-center fs-3" id="index-div-margin">Start by taking a look at the different seismological topics <a href="#cards-parent">below</a> or learn about general concepts of seismology <a href="/templates/seismology-intro-page.html">here</a></h1>
+            </div>
+            <h2 class="display-5 text-muted pb-5">Check out the different Seismological sites to learn more.</h2>
+            <div class="row align-items-center justify-content-center">
+                <div class="col-lg-5  col-7 text-center">
+                    <img src="/static/img/index-images/earthquakes/earthquakes1.png" alt="seismographic-network" class="img-fluid rounded" id="image-id-earthquakes">
+                </div>
+                <div class="col-lg-7">
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed text-bg-light p-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    <img src="/static/img/index-images/iris-tn.jpg" class="img-fluid pe-5">
+                                    <span class="display-6">Incorporated Research Institutions for Seismology</span>
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <strong>IRIS</strong> is a university research consortium dedicated to exploring the Earth's interior through the collection and distribution of seismographic data. RIS's Education and Public Outreach Program offers animations, videos, lessons, software, posters, and fact sheets to help teachers and the general public learn more about seismology and earth science and understand it better.  
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed text-bg-light p-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    <img src="/static/img/index-images/ssa-tn.jpg" class="img-fluid pe-5">
+                                    <span class="display-6">Seismological Society of America</span>
+                            </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                            <div class="accordion-body">
+                                The <strong>Seismological Society of America</strong> is an international scientific society devoted to the advancement of seismology and the understanding of earthquakes for the benefit of society. Founded in 1906, the society has members throughout the world representing seismologists and other geophysicists, geologists, engineers, insurers, and policy-makers in preparedness and safety.
+                            </div>
+                        </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed text-bg-light p-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    <img src="/static/img/index-images/emsc-tn.jpg" class="img-fluid pe-5">
+                                    <spa class="display-6"n>European-Mediterranean Seismological Centre</span>
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                    <div class="accordion-body">
+                                        The <strong>European-Mediterranean Seismological Centre</strong> is an international, non-governmental and not-for-profit organisation. The European-Mediterranean region is prone to destructive earthquakes. When an earthquake occurs, a scientific organisation is needed to determine, as quickly as possible, the characteristics of the seismic event. 
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </section>
+
+
+    
+    
+    <section class="bg-light">
+        <div class="container-lg">
+            <h2 class="display-4 text-muted text-center">Learn about the P and S wave arrivals and the different phases</h2>
+            <canvas id="line-chart-arrivals" class="mt-5"></canvas>
+        </div>
+    </section>
+    
+    
+    
+    <section>
+        <div class="container-lg" style="border-left: solid grey 7px; padding-left: 60px;">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h2 class="display-4 text-muted text-start">Learn about the elastic rebound theory<br><span class="text-muted display-6">(hover to the image)</span></h2>
+                </div>
+                <div class="col-lg-6">
+                    <img src="/static/img/index-images/fault-animation-start.jpg" alt="elastic rebound theory" class="img-fluid" id="fault-animation">
+                </div>
+            </div>
+            
+        </div>
+    </section>
+    
+    <section>
+        <div class="container-lg" style="border-left: solid grey 7px; padding-left: 60px;">
+            <div class="row justify-content-around align-items-center">
+                <div class="col-lg-6 ">
+                    <h2 class="display-4 text-muted text-start">Learn about the Site Effect<br><span class="text-muted display-6">(hover to the image)</span></h2>
+                </div>
+                <div class="col-lg-6 ">
+                    <img src="/static/img/index-images/site-effect-animation-start.jpg" alt="Site effect"  class="img-fluid" id="site-effect-animation">
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+    
+
+        <div class="shadow p-3 mb-5 bg-white rounded container-lg bg-light">
+            <figure">
+                <blockquote>
+                    <p>They joy of being a seismologist comes to you, when you find something new about the earth's interior from the observation of seismic waves obtained on the surface, and realize that you did it without penetrating the earth or touching or examining it directly.</p>
+                </blockquote>
+                <figcaption class="fs-5">—Keiti Aki, <cite>presidential address to the Seismological Society of America, 1980</cite></figcaption>
+            </figure>
+        </div>
+    </section>
+
+    
+
+    <section class="bg-light py-4 mb-0 fs-4">
+        <div class="container-lg">
+            <h1 class="display-4 text-muted text-center">Seismological topics</h1>
+            <div>
+                <div class="row my-5 align-items-center justify-content-center" id="cards-parent" >
+
+                    <div class="col-8 col-lg-4 mb-4">
+                        <div class="card text-center">
+                            <a href="/templates/fault-type-page.html" class="img--hover-action"><img src="/static/img/index-images/fault-type-image.png" class="img-thumbnail img-fluid" alt="fault representation"></a>
+                            <div class="card-body">
+                                <h5 class="card-title display-6">Fault types</h5>
+                                <p class="card-text">This section presents the three different types of faults along with different parameters used to recognize each type.</p>
+                                <a href="/templates/fault-type-page.html" class="btn btn-primary">Go to the page</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8 col-lg-4 mb-4">
+                        <div class="card text-center">
+                            <a href="/templates/obspy-page.html" class="img--hover-action"><img src="/static/img/index-images/obspy-image.png" class="img-thumbnail img-fluid" alt="Python Obspy library"></a>
+                            <div class="card-body">
+                                <h5 class="card-title display-6">Python Obspy</h5>
+                                <p class="card-text">This section refers to the Obspy library of the Python programming language and its use in real seismological problems.</p>
+                                <a href="/templates/obspy-page.html" class="btn btn-primary">Go to the page</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-8 col-lg-4 mb-4">
+                        <div class="card text-center">
+                            <a href="#" class="img--hover-action"><img src="/static/img/index-images/site-effect-image.png" class="img-thumbnail img-fluid" alt="site effect"></a>
+                            <div class="card-body">
+                                <h5 class="card-title display-6">Site effects</h5>
+                                <p class="card-text">This section describes the effect of the underground Geology in amplitude of the seismic waves and its consequences.</p>
+                                <a href="#" class="btn btn-primary">Go to the page</a>
+                            </div>
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+
+        <p class="text-muted text-center fs-3">Check <a href="/templates/all-topics-page.html">here</a> for more topics.</p> 
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+    <script src="/static/js/index-script.js"></script>
+
+{% endblock %}
+
+
+
+
+        
+        
+        

@@ -86,7 +86,7 @@ fetch('/all-topics-info.json')
         topicNotFound.innerHTML = `
             <div style="text-align: center">
               <p style="font-size: 40px;">Nothing found...</p>
-              <img src="/images/all-topics-images/minions-no-bg.png" style="max-width: 100%; display: block; margin: auto; width: 400px; height: 300px;">
+              <img src="/static/img/all-topics-images/minions-no-bg.png" style="max-width: 100%; display: block; margin: auto; width: 400px; height: 300px;">
             </div>
         `;
         mainElement.appendChild(topicNotFound)

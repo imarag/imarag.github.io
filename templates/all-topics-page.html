@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    All topics
+{% endblock %}
+
+{% block extcss %}
+
+    <style>
+
+        #header {
+            margin: 0px;
+        }
+        .search-box {
+            display: block;
+            margin: 0px auto;
+            text-align: center;
+            background-color: #615c5c;
+            color: white;
+            padding: 30px 0px;
+        }
+
+        .single-topic-div {
+            border-radius: 50px;
+            padding: 50px 0px;
+            display: flex; 
+            flex-direction: row; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: linear-gradient(#ffffff, #ffffff);  
+            margin-bottom: 0px;
+        }
+
+        .single-topic-div:hover {
+            background: linear-gradient(#d9dbdb 10%, #fbf9f9 50%);  
+        }
+
+        .single-topic-div p {
+            font-size: 80px;
+            color: #777;
+            font-weight: 300;
+        }
+
+        .hor-line {
+            margin: 0px;
+            color: black;
+            /* border: 0.1px solid black; */
+        }
+
+        .created-element-anchor {
+            text-decoration: none;
+        }
+
+        #search-string {
+            border-radius: 20px;
+            width: 350px;
+            padding:0px 16px;
+        }
+
+        #search-bt {
+            border-radius: 20px;
+            padding: 0px 30px;
+            background:  linear-gradient(#f4eded, #ffffff);
+        }
+
+        #wrapper {
+            margin-bottom: 0px;
+            margin-top: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            padding: auto;
+            
+        }
+
+        #flex-div {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            justify-content: center;
+        }
+        #text-box {
+            /* background-color: rgb(248, 243, 243); */
+            width: 600px;
+            margin-left: 60px;
+            border-radius: 40px;
+            padding: 10px 20px;
+        }
+
+        #wrapper h1 {
+            text-align: center;
+        }
+
+ 
+
+    </style>
+{% endblock %}
+
+
+{% block content %}
+
+      
+    <div style="background-color: #ebe2e2;">
+
+        <form action="/templates/all-topics-page.html" class="search-box">
+            <input type="text" id="search-string" name="search-string" placeholder="search for a topic">
+            <input type="submit" value="search" id="search-bt">
+        </form>
+
+        <div id="wrapper">
+            {% for topic in all_topics_dict %}
+                <div style="padding: 30px 0px;">
+                    <div id="flex-div">
+                        <img src={{ topic["image-url"] }}>
+                        <div id="text-box">
+                            <h1>{{ topic["title"] }}</h1>
+                            <p>{{ topic["description"] }}</p>
+                            <a href={{ topic["page-url"] }}>Go to the page</a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="hor-line">
+            {% endfor %}
+            </div>
+        </div>
+        
+
+    </div>
+
+    
+    <!-- <script defer src="/static/js/all-topics-script.js"></script> -->
+
+{% endblock %}

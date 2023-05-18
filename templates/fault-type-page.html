@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Fault types
+{% endblock %}
+
+{% block extcss %}
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-lg ">
+
+        <section>
+            <div class="row justify-content-center align-items-center">
+                    <h1 class="main-block__title main-block__title--large">
+                        <a href="https://docs.obspy.org/" class="main-block__link">
+                            <img src="/static/img/fault-type-images/fault-type-image-no-bg.png" alt="mseed record ASCII file" class="main-block__img main-block__img--small">
+                        </a>
+                        What is a fault ?
+                    </h1>
+            </div>
+
+
+            <div class="main-block__intro-div">
+                <p>A fault, is a planar or curved fracture in the rocks of the Earth's crust, where the two blocks formed across the fracture zone, move relative to each other. This movement may occur rapidly, as the result of the surrounding forces and generate an earthquake. Faults may range in length from a few milimiters to thousands of kilometers.</p>
+            </div>
+
+            <div class="main-block__badges-div">
+                <a href="https://en.wikipedia.org/wiki/Fault_(geology)"><span class="main-block__badges">fault</span></a>
+                <a href="https://en.wikipedia.org/wiki/Earthquake"><span class="main-block__badges">earthquakes</span></a>
+                <a href="https://www.usgs.gov/media/videos/elastic-rebound#:~:text=Elastic%20rebound%20is%20what%20happens,the%20friction%20making%20it%20stick."><span class="main-block__badges">elastic theory</span></a>
+                <a href="https://geo.libretexts.org/Bookshelves/Geology/Geological_Structures_-_A_Practical_Introduction_(Waldron_and_Snyder)/01%3A_Topics/1.11%3A_Faults"><span class="main-block__badges">fault types</span></a>
+            </div>
+            <hr>
+        </section>
+                
+        <section>
+
+            <p class="main-block__title main-block__title--medium">Introduction</p>
+
+            <p>
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspFaults are the main source of the earthquakes. During a fault rupture, one side of 
+                the fault moves with respect to the other side. The upper or overlying block along the fault plane (assuming that a fault is a planar surface) 
+                is called the <b>hanging wall</b> and the block below is called the <b>footwall</b>. According to H. Reid, the fault rupture follows the 
+                elastic rebound theory that is the friction between the two blocks prevents them from sliping until the strain is so large 
+                that there is a sudden and steep movement that causes the earthquake.
+            </p>
+
+            <img src="/static/img/fault-type-images/fault-type-general.png" alt="fault type" class="main-block__img main-block__img--large">
+
+            <p class="main-block__title main-block__title--medium">Fault geometry</p>
+
+            <p>
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTo describe the geometry of a fault, we need to assume that a fault is a planar surface across 
+                which relative motion accurs during an earthquake. 
+                The coordinate axes used to describe the fault are the <code>X1</code> axis that is called the <b>strike</b> of the fault 
+                (the instersection of the fault plane with the surface), the <code>X2</code> axis that is perpedicular to the <code>X1</code> axis and <code>X3</code> axis and the <code>x3</code> axis that it points
+                upward and is perpendicular to the other two. 
+                The fault geometry can be completely described using two different
+                coordinate systems: a) n, d and b) φf, δ, λ. The first coordinate system uses the <b>normal</b> vector on the fault plane (n) and the perpendicular
+                to the normal vector, the <b>slip</b> vector, that shows the direction of the hanging wall block with respect to the footwall. 
+                The second one, consists of the <b>dip angle</b> <code>δ</code>, that is the orientation of the fault with respect to the surface, the counterclockwise measured
+                <b>slip angle</b> <code>λ</code> measured from the <code>X1</code> axis to the direction of motion and lastly the <b>fault strike</b> <code>φf</code> that is the angle measured from the clockwise from
+                the north to the <code>X1</code> axis.
+            </p>
+
+            <img src="/static/img/fault-type-images/fault-geometry.png" alt="fault type" class="main-block__img main-block__img--large">
+
+            <p>
+                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspWe can categorize the faults into three categories, according to the <b>orientation</b>
+                of the fault plane and the <b>direction</b> of the slip along the plane. Faults which move along the direction of the 
+                dip plane are <b>dip-slip</b> faults and described as either <b>normal</b> or <b>reverse</b> (<b>thrust</b>), 
+                depending on their motion. Faults which move horizontally are known as <b>strike-slip</b> faults and are classified as 
+                either <b>right-lateral</b> or <b>left-lateral</b>. Faults which show both dip-slip and strike-slip motion are known 
+                as <b>oblique-slip</b> faults.
+            </p>
+            
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">Strike-slip fault</h2>
+                    <p>The two sides of the fault, slide horizontally to each other. The slip can be <i>left lateral</i> or <i>right lateral</i> if the slip angle is 0 or 180 degrees respectively</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/fault-type-images/strike-slip-fault.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+            
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">Normal-slip fault</h2>
+                    <p>This describes a <i>dip-slip</i> faulting. When the slip angle is 270 degrees the hanging wall slides downward causing normal faulting</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/fault-type-images/normal-slip-fault.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+            <div class="main-block__left-right-image-text-div">
+                <div class="main-block__left-right-image-text-flex-child">
+                    <h2 class="text-start display-5 text-muted">Reverse-slip fault</h2>
+                    <p>This describes also a <i>dip-slip</i> faulting. When the slip angle is 90 degrees, the hanging wall slides upward yielding reverse or thrust faulting</p>
+                </div>
+                <div class="main-block__left-right-image-text-flex-child">
+                    <img src="/static/img/fault-type-images/reverse-slip-fault.gif" alt="fault type" class="main-block__img main-block__img--side">
+                </div>
+            </div>
+
+
+        </section>
+    </div>
+
+    <script src="/scripts/fault-type-script.js"></script>
+
+{% endblock %}
