@@ -1,0 +1,428 @@
+from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory
+import os
+from flask_session import Session
+from flask_compress import Compress
+import json
+from obspy.core import read, UTCDateTime
+from obspy.core.trace import Trace
+from obspy.core.stream import Stream
+import numpy as np
+import gzip
+
+app = Flask(__name__, static_folder="static")
+app.secret_key = '12345asdfg6789lkj'
+initial_mseed_file = os.path.join(app.root_path , "static-data/", "20150724_095834_KRL1_data.mseed")
+stream_json_file = os.path.join(app.root_path , "static-data/", "stream-data.json")
+stream_json_file_updated = os.path.join(app.root_path , "static-data/", "stream-data-updated.json")
+
+def updateJSONFile(stream, outfile):
+    traces_data_dict = {}
+    starttime = stream[0].stats["starttime"].isoformat()
+    fs = stream[0].stats["sampling_rate"]
+    station = stream[0].stats["station"]
+    for n, trace in enumerate(stream):
+        trace_data = {
+            'data': list(trace.data),
+            'stats': {'starttime': starttime, 'sampling_rate':fs, 'station':station, 'channel': trace.stats["channel"]}
+        }
+        traces_data_dict[f'trace-{n}'] = trace_data
+    with open(outfile, "w") as fw:
+        json.dump(traces_data_dict, fw)
+
+
+def initialize_stream():
+    initial_stream = read(initial_mseed_file)
+    initial_stream.trim(starttime=initial_stream[0].stats.starttime, endtime=initial_stream[0].stats.starttime+100)
+    updateJSONFile(initial_stream, stream_json_file)
+    updateJSONFile(initial_stream, stream_json_file_updated)
+    
+
+initialize_stream()
+
+@app.route('/static-data/<filename>')
+def serve_stream_json(filename):
+    return send_from_directory('static-data', filename)
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route("/data", methods=["POST"])
+def generate_data():
+    with open(stream_json_file, 'r') as input_file:
+        json_traces = json.load(input_file)
+
+    traces_list = [Trace(data=np.array(json_traces[trdict]["data"]), header=json_traces[trdict]["stats"]) for trdict in json_traces]
+    st = Stream(traces_list)
+    
+    data_json = request.get_json()
+    filter_type = data_json.get('filterType')
+    filter_value = data_json.get('filterValue')
+    detrend = data_json.get('detrend')
+
+    if detrend != "false":
+        st.detrend()
+    elif filter_type != "false":
+        if filter_type == 'bandpass':
+            freqmin = float(filter_value.split('-')[0])
+            freqmax = float(filter_value.split('-')[1])
+            st.filter("bandpass", freqmin=freqmin, freqmax=freqmax)
+        elif filter_type == 'lowpass':
+            freq = float(filter_value)
+            st.filter("lowpass", freq=freq)  
+        elif filter_type == 'highpass':
+            freq = float(filter_value)
+            st.filter("highpass", freq=freq)  
+
+    updateJSONFile(st, stream_json_file_updated)
+    return json.dumps({"result": "succesful"})
+
+
+@app.route('/templates/all-topics-page.html', methods=['GET'])
+def all_topics_view():
+    search_string = request.args.get('search-string')
+    with open('all-topics-info.json', 'r') as f:
+        data = json.load(f)
+    if not search_string:
+        all_topics_dict = data['all-topics']
+    else:
+        lt = []
+        for tp_dct in data['all-topics']:
+            if search_string in tp_dct["title"]:
+                lt.append(tp_dct)
+        all_topics_dict = lt
+    return render_template('all-topics-page.html', all_topics_dict = all_topics_dict)
+
+    
+
+@app.route('/templates/<page>', methods=['GET'])
+def html_page(page):
+    if '.html' in page:
+        template_page = page
+    else:
+        template_page = page + '.html'
+    template_full_path = os.path.join(app.template_folder, template_page)
+    if os.path.exists(template_full_path):
+        return render_template(template_page)
+    else:
+        abort(404)
+
+
+    
+@app.errorhandler(404)
+def page_not_found(error):
+    return "Page not found"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+<style>
+    #wave-one-line {
+        position: relative;
+        top: 67px;
+    }
+
+    #pills-tab img{
+        width:30px; 
+        height: 25px; 
+        margin-right: 6px;
+    }
+
+    #signal-processing-options span{
+        display: inline-block;
+        width: 110px;
+        padding: 5px;
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .pills-section {
+        margin-top: 50px;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+.dropdown-item {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+select {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+  
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div>
+
+        <section class="bg-light fs-2 p-5">
+            <div class="container-lg">
+                <p class="display-2 text-center mb-5">Signal processing</p>
+                <p class="text-center">Start by 
+                    <button class="btn btn-primary">uploading</button> 
+                an <code>mseed</code> file...</p>
+                <p class="text-muted text-center fs-5">There is an already uploaded file so that you can try the tools provided!</p>
+                <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+        </section>
+
+        <section class="pills-section p-4 container-lg ">
+            <p class=" text-center mb-5 fs-2 text-muted">Choose one of the following options</p>
+            <div>
+                <ul class="nav nav-pills mb-3 fs-5" id="pills-tab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true"><img src="/static/img/signal-processing-images/filter.png" class="img-fluid">Filter</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false"><img src="/static/img/signal-processing-images/content-cut.png" class="img-fluid">Trim</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false"><img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">Detrend</button>
+                    </li>
+                </ul>
+            </div>
+            <hr>
+                <div class="tab-content p-5 fs-3" id="pills-tabContent">
+                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                        <p>Select the filter type 
+                           
+                            <select name="filter-type" id="filter-type" class="rounded">
+                                <option value="nada" disabled selected>---filter type---</option>
+                                <option value="lowpass">Lowpass</option>
+                                <option value="highpass">Highpass</option>
+                                <option value="bandpass">Bandpass</option>
+                            </select>
+                       
+                            to apply as well as the frequency range 
+                            <select name="filter-value" id="filter-value" class="rounded">
+                                <option value="nada" disabled selected>---filter value---</option>
+                            </select>
+                            according to the filter type...
+                        </p>
+                        
+                     
+                    </div>
+                    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                        <p>
+                            Cut the waveform inside a specified window. Move the two vertical lines on the graph
+                            to specify the left and right side of the window.
+                        </p>
+                        <button class="btn btn-info">Create</button> the vertical lines, use them to select the window limits and
+                        <button class="btn btn-info">Trim</button> the waveform when ready
+        
+                    </div>
+                    <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                        <p>
+                            Remove the trend of the seismogram. Move the signal along the vertical axis, so that the first value 
+                            of the Y-Axis, start close to zero.
+                        </p>
+                        <button class="btn btn-info" id="detrend-button">detrend</button>
+                        
+                    </div>
+                </div>
+            </div>
+
+
+            
+        </section>
+        
+
+        
+        <section class="container-lg">
+            <p id="optionsTextAboveGraph" class="fs-3 text-muted text-center"></p>
+            <div class="row mb-5 justify-content-center align-items-center text-center">
+                <div class="col-10 text-center">
+                    <div id='subplotsContainer' style="width: 100%; background-color: red;"></div>
+                </div>
+            </div>
+        </section>
+       
+    </div>
+
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script> 
+        let optionsText = document.querySelector("#optionsTextAboveGraph");
+        let detrendButton = document.querySelector("#detrend-button");
+        let trimButton = document.querySelector("#trim-button")
+        let filterTypeSelect = document.querySelector("#filter-type");
+        let filterValueSelect = document.querySelector("#filter-value");
+        let selectedFilterType;
+        let selectedFilterValue;
+        let SelectElementFilterOptions = {
+            lowpass: ['0.1', '0.5', '1', '1.5'],
+            highpass: ['0.1', '0.5', '1', '1.5'],
+            bandpass: ['0.1-0.3', '0.1-0.5', '1-3', '1-5']
+        };
+        
+        filterTypeSelect.addEventListener('change', updateFilterOptions);
+        filterValueSelect.addEventListener('change', () => {
+            optionsText.textContent = `A ${filterTypeSelect.value} filter is applied with frequency(ies) ${filterValueSelect.value}`;
+            let requestData = {
+                filterType: filterTypeSelect.value,
+                filterValue: filterValueSelect.value,
+                detrend: 'false',
+            };
+            sendPostRequest(requestData);
+        });
+
+        plotData();
+
+        function updateFilterOptions() {
+            selectedFilterType = filterTypeSelect.value;
+            filterValueSelect.innerHTML = '';
+            
+            SelectElementFilterOptions[selectedFilterType].forEach(option => {
+                let newFilterValue = document.createElement('option');
+                newFilterValue.textContent = option;
+                newFilterValue.value = option;
+                filterValueSelect.appendChild(newFilterValue);
+            });
+
+            filterValueSelect.value = SelectElementFilterOptions[selectedFilterType][0];
+            optionsText.textContent = `A ${selectedFilterType} filter is applied with frequency(ies) ${filterValueSelect.value}`;
+            let requestData = {
+                filterType: filterTypeSelect.value,
+                filterValue: filterValueSelect.value,
+                detrend: 'false',
+            };
+            sendPostRequest(requestData);
+        }
+        
+        function sendPostRequest(postObject) {
+            fetch("/data", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(postObject)
+                })
+            .then(() => {
+                    console.log('JSON file updated successfully');
+                    plotData();
+                })
+            .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+
+        function plotData() {
+            fetch("/static-data/stream-data-updated.json")
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();  // Assuming the response is JSON
+                        
+                    } else {
+                        throw new Error('Request failed');
+                    }
+                })
+                .then(data => {
+                
+                    let plotData = [];
+                    let x_time = [];
+                    let fs = data["trace-0"]['stats']['sampling_rate'];
+
+                    let N = data["trace-0"]["data"].length;
+                    console.log(N);
+                    let Delta = N / fs;
+                    let dt = 1 / fs;
+                    for (let i=0; i<Delta; i=i+dt) {
+                        x_time.push(i);
+                    }
+                    for (k in data) {
+                        plotData.push([{ x: x_time, y: data[k]['data'], type: 'scatter', mode: 'lines', name: `Channel: ${data[k]['stats']['channel']}` }]);
+                    }
+                    const layout = {
+                        height: 500,
+                        margin: { t: 100, b: 0 }, 
+                    };
+
+                    const container = document.getElementById('subplotsContainer');
+                    container.innerHTML = '';
+
+                    plotData.forEach((data, index) => {
+                    const subplot = document.createElement('div');
+                    subplot.className = "div-class";
+                    subplot.id = `subplot${index + 1}`;
+                    container.appendChild(subplot);
+
+                    Plotly.newPlot(subplot.id, data, layout);
+                    });
+                   
+
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+        
+     
+
+        detrendButton.addEventListener('click', () => {
+            const requestData = {
+                filterType: 'false',
+                filterValue: 'false',
+                detrend: 'true',
+            };
+            sendPostRequest(requestData); 
+        });
+
+    </script>
+
+{% endblock %}

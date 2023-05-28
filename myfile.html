@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>D3.js Chart Example</title>
+  <style>
+    /* Add any necessary CSS styling for your chart here */
+    #chart {
+      width: 600px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <svg id="chart"></svg>
+
+  <!-- Include the D3.js library -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    // Define the chart dimensions
+    const width = 600;
+    const height = 400;
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+
+    // Generate some random data
+    const data = [
+      { x: 0, y: 10 },
+      { x: 1, y: 20 },
+      { x: 2, y: 15 },
+      { x: 3, y: 25 },
+      { x: 4, y: 12 },
+      { x: 5, y: 30 },
+      { x: 6, y: 18 },
+      { x: 7, y: 22 },
+      { x: 8, y: 16 },
+      { x: 9, y: 28 }
+    ];
+
+    // Create a scale for the x-axis
+    const xScale = d3.scaleLinear()
+      .domain(d3.extent(data, d => d.x))
+      .range([0, width - margin.left - margin.right]);
+
+    // Create a scale for the y-axis
+    const yScale = d3.scaleLinear()
+      .domain([0, d3.max(data, d => d.y)])
+      .range([height - margin.top - margin.bottom, 0]);
+
+    // Create the line generator
+    const line = d3.line()
+      .x(d => xScale(d.x))
+      .y(d => yScale(d.y));
+
+    // Create a zoom behavior for the graph area
+    // Create a zoom behavior for the SVG
+const zoom = d3.zoom()
+  .scaleExtent([0.5, 4]) // Limit the zoom scale
+  .on("zoom", zoomed);
+
+// Append the SVG container
+const svg = d3.select("#chart")
+  .attr("width", width)
+  .attr("height", height)
+  .call(zoom);
+
+
+// Append the SVG container for the graph area
+const graphContainer = svg.append("g")
+  .attr("transform", `translate(${margin.left}, ${margin.top})`)
+  .attr("width", width - margin.left - margin.right)
+  .attr("height", height - margin.top - margin.bottom)
+  .call(zoom);
+
+// Append the line to the graph container
+graphContainer.append("path")
+  .datum(data)
+  .attr("class", "line")
+  .attr("d", line);
+
+// Append the x-axis to the main SVG container
+svg.append("g")
+  .attr("class", "x-axis")
+  .attr("transform", `translate(${margin.left}, ${height - margin.bottom})`)
+  .call(d3.axisBottom(xScale));
+
+// Append the y-axis to the main SVG container
+svg.append("g")
+  .attr("class", "y-axis")
+  .attr("transform", `translate(${margin.left}, ${margin.top})`)
+  .call(d3.axisLeft(yScale));
+
+// Zoom event handler
+function zoomed(event) {
+  const { transform } = event;
+  // Apply the zoom and pan transformations to the graph container only
+  graphContainer.attr("transform", transform);
+}
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,604 @@
+from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory
+import os
+from flask_session import Session
+from flask_compress import Compress
+import json
+from obspy.core import read, UTCDateTime
+from obspy.core.trace import Trace
+from obspy.core.stream import Stream
+import numpy as np
+import gzip
+import io
+
+app = Flask(__name__, static_folder="static")
+app.secret_key = '12345asdfg6789lkj'
+
+initial_mseed_file = os.path.join(app.root_path , "static-data/", "20150724_095834_KRL1_data.mseed")
+stream_json_file = os.path.join(app.root_path , "static-data/", "stream-data.json")
+stream_json_file_updated = os.path.join(app.root_path , "static-data/", "stream-data-updated.json")
+stream_json_file_filtered = os.path.join(app.root_path , "static-data/", "stream-data-filtered.json")
+
+initial_stream = read(initial_mseed_file)
+
+def updateJSONFile(stream, outfile):
+    traces_data_dict = {}
+    starttime = stream[0].stats["starttime"].isoformat()
+    fs = stream[0].stats["sampling_rate"]
+    station = stream[0].stats["station"]
+    for n, trace in enumerate(stream):
+        trace_data = {
+            'data': list(trace.data),
+            'stats': {'starttime': starttime, 'sampling_rate':fs, 'station':station, 'channel': trace.stats["channel"]}
+        }
+        traces_data_dict[f'trace-{n}'] = trace_data
+    with open(outfile, "w") as fw:
+        json.dump(traces_data_dict, fw)
+
+
+def initialize_stream():
+    initial_stream.trim(starttime=initial_stream[0].stats.starttime, endtime=initial_stream[0].stats.starttime+100)
+    updateJSONFile(initial_stream, stream_json_file)
+    updateJSONFile(initial_stream, stream_json_file_updated)
+    updateJSONFile(initial_stream, stream_json_file_filtered)
+    
+
+initialize_stream()
+
+
+
+uploaded_mseed_file_path = os.path.join(app.root_path, "static-data", "uploaded-mseed-file.mseed")
+
+def convert_mseed_to_object(stream):
+    traces_data_dict = {}
+    starttime = stream[0].stats["starttime"].isoformat()
+    fs = stream[0].stats["sampling_rate"]
+    station = stream[0].stats["station"]
+    for n, trace in enumerate(stream):
+        trace_data = {
+            'ydata': list(trace.data),
+            'xdata': list(trace.times()),
+            'stats': {
+                'starttime': starttime, 
+                'sampling_rate':fs, 
+                'station':station, 
+                'channel': trace.stats["channel"]}
+            }
+        traces_data_dict[f'trace-{n}'] = trace_data
+    return traces_data_dict
+
+
+@app.route('/upload-mseed-file', methods=['POST'])
+def upload():
+
+    if 'file' not in request.files:
+        return 'No file uploaded', 400
+    
+    # Get the uploaded file from the request
+    mseed_file = request.files['file']
+    
+    # Read the MSeed file using obspy
+    stream = read(mseed_file)
+    converted_stream = convert_mseed_to_object(stream)
+
+    json_data = jsonify(converted_stream)
+    
+    return json_data
+
+
+
+@app.route("/apply-filter", methods=["GET"])
+    
+    data_json = request.get_json()
+    filter_value = data_json.get('filter')
+    try:
+        if filter_value != 'initial':
+            freqmin = filter_value.split('-')[0]
+            freqmax = filter_value.split('-')[1]
+
+            if freqmin and not freqmax:
+                mseed_data.filter("highpass", freq=float(freqmin))
+            elif not freqmin and freqmax:
+                mseed_data.filter("lowpass", freq=float(freqmax))
+            elif not freqmin and not freqmax:
+                pass
+            else:
+                mseed_data.filter("bandpass", freqmin=float(freqmin), freqmax=float(freqmax))
+    except Exception as e:
+        print(e)
+    
+    converted_mseed_data = convert_mseed_to_object(mseed_data)
+    
+    def generate():
+        chunk_size = 1024  # Adjust the chunk size as per your requirement
+        offset = 0
+        while offset < len(converted_mseed_data):
+            # Yield a chunk of data
+            yield converted_mseed_data[offset:offset+chunk_size]
+            offset += chunk_size
+    
+    # Create a streaming response with the generator function
+    return Response(generate(), mimetype='application/octet-stream')
+
+
+
+
+
+
+
+
+
+
+
+# @app.route("/apply-filter1", methods=["POST"])
+# def apply_filter():
+#     with open(stream_json_file, 'r') as input_file:
+#         json_traces = json.load(input_file)
+
+#     traces_list = [Trace(data=np.array(json_traces[trdict]["data"]), header=json_traces[trdict]["stats"]) for trdict in json_traces]
+#     st = Stream(traces_list)
+    
+#     data_json = request.get_json()
+#     filter_value = data_json.get('filter')
+#     try:
+#         if filter_value != 'initial':
+#             freqmin = filter_value.split('-')[0]
+#             freqmax = filter_value.split('-')[1]
+
+#             if freqmin and not freqmax:
+#                 st.filter("highpass", freq=float(freqmin))
+#             elif not freqmin and freqmax:
+#                 st.filter("lowpass", freq=float(freqmax))
+#             elif not freqmin and not freqmax:
+#                 pass
+#             else:
+#                 st.filter("bandpass", freqmin=float(freqmin), freqmax=float(freqmax))
+#     except Exception as e:
+#         print(e)
+#     updateJSONFile(st, stream_json_file_filtered)
+#     return json.dumps({"result": "succesful"})
+
+
+
+
+
+@app.route('/get-stream-json-file-filtered')
+def serve_stream_json():
+    return send_from_directory(app.root_path + "/static-data", "stream-data-filtered.json")
+
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/get-initial-mseed-file-as-json')
+def initial_mseed_file():
+    return send_from_directory(app.root_path + "/static-data", "stream-data.json")
+
+@app.route('/update-json-with-initial-mseed')
+def update_json_with_initial_mseed():
+    updateJSONFile(initial_stream, stream_json_file_filtered)
+    return json.dumps(json.dumps({"result": "succesful"}))
+
+@app.route("/update-stream-json-file", methods=["POST"])
+def generate_data():
+    with open(stream_json_file_updated, 'r') as input_file:
+        json_traces = json.load(input_file)
+
+    traces_list = [Trace(data=np.array(json_traces[trdict]["data"]), header=json_traces[trdict]["stats"]) for trdict in json_traces]
+    st = Stream(traces_list)
+    
+    data_json = request.get_json()
+    tool_used = data_json.get('tool')
+    methods = data_json.get('methods')
+    
+
+    if tool_used == "detrend":
+        st.detrend(type=methods["detrend-type"])
+    elif tool_used == "taper":
+        st.taper(float(methods["taper-length"]), type=methods["taper-type"], side=methods["taper-side"])
+    elif tool_used == "trim":
+        starttime = st[0].stats.starttime
+        st.trim(starttime=starttime + int(methods["trim-left-side"]), endtime=starttime + int(methods["trim-right-side"]))
+    else:
+        st = initial_stream
+
+    updateJSONFile(st, stream_json_file_updated)
+    return json.dumps({"result": "succesful"})
+
+
+
+
+@app.route('/templates/all-topics-page.html', methods=['GET'])
+def all_topics_view():
+    search_string = request.args.get('search-string')
+    with open('all-topics-info.json', 'r') as f:
+        data = json.load(f)
+    if not search_string:
+        all_topics_dict = data['all-topics']
+    else:
+        lt = []
+        for tp_dct in data['all-topics']:
+            if search_string in tp_dct["title"]:
+                lt.append(tp_dct)
+        all_topics_dict = lt
+    return render_template('all-topics-page.html', all_topics_dict = all_topics_dict)
+
+    
+
+@app.route('/templates/<page>', methods=['GET'])
+def html_page(page):
+    if '.html' in page:
+        template_page = page
+    else:
+        template_page = page + '.html'
+    template_full_path = os.path.join(app.template_folder, template_page)
+    if os.path.exists(template_full_path):
+        return render_template(template_page)
+    else:
+        abort(404)
+
+
+    
+@app.errorhandler(404)
+def page_not_found(error):
+    return "Page not found"
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+let verticalLinesList  = [];
+let annotationsList = [];
+let annotationsText = ['P', 'S'];
+let traces_list = [];
+let tracesLength;
+let currentSelectedWave = 'P';
+let wavesPicked = [];
+
+let buttonRemoveP = document.querySelector("#button-remove-p");
+let buttonRemoveS = document.querySelector("#button-remove-s");
+let buttonPWave = document.querySelector("#button-p-wave");
+let buttonSWave = document.querySelector("#button-s-wave");
+let selectFilter = document.querySelector("#filter");
+let leftFilter = document.querySelector("#left-filter");
+let rightFilter = document.querySelector("#right-filter");
+let uploadButton = document.querySelector("#upload-button");
+let uploadInput = document.querySelector('#upload-input')
+buttonPWave.style.backgroundColor = "#333";
+
+
+let layout = {
+    title: '',
+    height: 900,
+    grid: {rows: 3, columns: 1, pattern: 'independent'},
+    shapes: [ ],
+    legend: {
+        font: {
+          size: 20 // Adjust the font size as desired
+        },
+      }
+};
+
+let config = {
+    
+    scrollZoom: true,
+    responsive: true,
+    displayModeBar: true,
+    modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
+    
+};
+
+
+uploadButton.addEventListener('click', function() {
+    uploadInput.click();
+  });
+
+uploadInput.addEventListener('change', function(event) {
+    const mseedFile = uploadInput.files[0];
+    
+    const chunkSize = 1024 * 1024;
+    let offset = 0;
+
+        // Create a new FormData object
+    const formData = new FormData();
+
+    // Append the MSeed file to the FormData object
+    formData.append('file', mseedFile);
+
+    fetch('/upload-mseed-file', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(mseedData => {
+            let convertedMseedData = prepareTracesList(mseedData);
+            createNewPlot(convertedMseedData);
+        })
+        .catch(error => {
+          // Handle any errors during the upload process
+          console.error('Error uploading MSeed file:', error);
+        });
+})
+
+
+
+function getMSEEDDataResponse(response){
+    const reader = response.body.getReader();
+    let chunks = [];
+
+    function read() {
+      return reader.read().then(({ done, value }) => {
+        if (done) {
+          // All chunks have been received, concatenate and parse the JSON
+          const concatenatedChunks = new Uint8Array(chunks.reduce((acc, chunk) => acc + chunk.length, 0));
+          let offset = 0;
+          for (const chunk of chunks) {
+            concatenatedChunks.set(chunk, offset);
+            offset += chunk.length;
+          }
+          const jsonString = new TextDecoder().decode(concatenatedChunks);
+          const jsonData = JSON.parse(jsonString);
+          console.log(jsonData); // Process the JavaScript object as needed
+          return;
+        }
+
+        chunks.push(value);
+        return read(); // Read the next chunk
+      });
+    }
+
+    return read(); // Start reading the chunks
+}
+
+function applyFilterPost(filterValue) {
+    fetch("/apply-filter", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({"filter": filterValue})
+        })
+    .then(() => {
+            console.log('JSON file updated successfully');
+            traces_list = getJSONData();
+        })
+    .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+selectFilter.addEventListener('change', () => {
+    applyFilterPost(selectFilter.value);
+})
+
+leftFilter.addEventListener('keydown', (e) => {
+    if (e.key == "Enter"){ 
+        applyFilterPost(leftFilter.value + '-' + rightFilter.value);
+    }
+})
+
+rightFilter.addEventListener('keydown', (e) => {
+    if (e.key == "Enter"){ 
+        applyFilterPost(leftFilter.value + '-' + rightFilter.value);
+    }
+})
+
+buttonPWave.addEventListener('click', () => {
+    currentSelectedWave = 'P';
+    buttonPWave.style.backgroundColor = "#333";
+    buttonSWave.style.backgroundColor = "#6c757d";
+    
+});
+
+buttonSWave.addEventListener('click', () => {
+    currentSelectedWave = 'S';
+    buttonSWave.style.backgroundColor = "#333";
+    buttonPWave.style.backgroundColor = "#6c757d";
+});
+
+buttonRemoveP.addEventListener('click', () => {
+    
+    buttonRemoveP.disabled = true;
+    buttonPWave.style.backgroundColor = '#333';
+    buttonSWave.style.backgroundColor = '#6c757d';
+    currentSelectedWave = 'P';
+    
+    wavesPicked = wavesPicked.filter(item => item !== 'P');
+    
+    if (wavesPicked.length === 0) {
+        buttonSWave.style.backgroundColor = '#6c757d';
+    }
+
+    let newVerticalLinesList = [];
+    let newAnnotationsList = [];
+
+    verticalLinesList.forEach(function(item, index){
+    if (item.which != 'P') {
+        newVerticalLinesList.push(item);
+    }
+    });
+    
+    annotationsList.forEach(function(item, index){
+    if (item.which != 'P') {
+        newAnnotationsList.push(item);
+    }
+    });
+
+    verticalLinesList = newVerticalLinesList;
+    annotationsList = newAnnotationsList;
+
+    Plotly.relayout('graph', {
+        shapes: verticalLinesList, annotations: annotationsList
+    }, config)
+
+});
+
+buttonRemoveS.addEventListener('click', () => {
+    buttonRemoveS.disabled = true;
+    buttonSWave.style.backgroundColor = '#333';
+    buttonPWave.style.backgroundColor = '#6c757d';
+    
+    currentSelectedWave = 'S';
+
+    wavesPicked = wavesPicked.filter(item => item !== 'S');
+
+    if (wavesPicked.length === 0) {
+        buttonPWave.disabled = false;
+        buttonSWave.disabled = false;
+    }
+
+    let newVerticalLinesList = [];
+    let newAnnotationsList = [];
+
+    verticalLinesList.forEach(function(item, index){
+    if (item.which != 'S') {
+        newVerticalLinesList.push(item);
+    }
+    });
+    
+    annotationsList.forEach(function(item, index){
+    if (item.which != 'S') {
+        newAnnotationsList.push(item);
+    }
+    });
+
+    verticalLinesList = newVerticalLinesList;
+    annotationsList = newAnnotationsList;
+
+    Plotly.relayout('graph', {
+    shapes: verticalLinesList, annotations: annotationsList
+    }, config)
+});
+
+
+function prepareTracesList(mseedDataObject) {
+    let xData;
+    let yData;
+    let tracesList = [];
+    let metr = 1;
+    for (tr in mseedDataObject) {
+        tracesList.push(
+            { 
+                x: mseedDataObject[tr]['xdata'], 
+                y: mseedDataObject[tr]['ydata'], 
+                type: 'scatter', 
+                mode: 'lines', 
+                name: `Channel: ${mseedDataObject[tr]['stats']['channel']}` , 
+                xaxis:`x${metr}`, 
+                yaxis: `y${metr}`,
+                line: {color: '#367AFA'}
+            }
+    );
+        metr += 1;
+    };
+    return tracesList;
+}
+
+function getJSONData() {
+    fetch("/get-stream-json-file-filtered")
+        .then(response => {
+            if (response.ok) {
+                console.log(response);
+                return response.json();  // Assuming the response is JSON
+            
+            } else {
+                throw new Error('Request failed');
+            }
+        })
+        .then(data => {
+            traces_list = prepareTracesList(data)
+        })
+        .then(dataEdited => {
+            createNewPlot();
+        })
+        .catch(error => {
+            console.log('what');
+            console.log(error);
+        });
+}
+
+function createNewPlot(tracesList) {
+    Plotly.newPlot('graph', tracesList, layout, config).then(function(graph) {
+
+        graph.on('plotly_doubleclick', function() {
+            Plotly.d3.event.preventDefault();
+        }).on('plotly_click', function(data) {
+            const xClick = data.points[0].x;
+
+            if (wavesPicked.length === 2) {
+                return;
+            }
+
+            if (currentSelectedWave === 'P') {
+                buttonPWave.disabled = true;
+                buttonPWave.style.backgroundColor = '#6c757d';
+                buttonSWave.style.backgroundColor = '#333';
+                wavesPicked.push('P')
+            }
+            else {
+                buttonSWave.disabled = true;
+                buttonSWave.style.backgroundColor = '#6c757d';
+                buttonPWave.style.backgroundColor = '#333';
+                wavesPicked.push('S')
+            }
+
+            if (wavesPicked.length === 2) {
+                buttonPWave.disabled = true;
+                buttonSWave.disabled = true;
+                buttonPWave.style.backgroundColor = '#6c757d';
+                buttonSWave.style.backgroundColor = '#6c757d';
+                
+            }
+
+            
+
+            for (let i=0; i<tracesLength; i++) {
+                const yValues = traces_list[i]["y"].map(value => Number(value));
+                const yMin = Math.min.apply(null, yValues);
+                const yMax = Math.max.apply(null, yValues);
+            verticalLinesList.push(
+                {
+                    type: 'line',
+                    x0: xClick,
+                    x1: xClick,
+                    y0: yMin,
+                    y1: yMax,
+                    xref: `x${i+1}`,
+                    yref: `y${i+1}`,
+                    which: currentSelectedWave,
+                    line: {color: 'black', width: 4}
+                });
+            
+            annotationsList.push(
+                {
+                    x: xClick-2,
+                    y: yMax/1.5,
+                    xref: `x${i+1}`,
+                    yref: `y${i+1}`,
+                    text: currentSelectedWave,
+                    which: currentSelectedWave,
+                    showarrow: false,
+                    font: {color: 'red', size: 40}
+                });
+            }
+
+            Plotly.relayout('graph', {
+            shapes: verticalLinesList, annotations: annotationsList
+            }, config)
+
+            if (currentSelectedWave == 'P') {
+                currentSelectedWave = 'S';
+                buttonRemoveP.disabled = false;
+            }
+            else {
+                currentSelectedWave = 'P';
+                buttonRemoveS.disabled = false;
+            }
+
+        });
+    })
+}
+

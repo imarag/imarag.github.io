@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+
+<style>
+    #wave-one-line {
+        position: relative;
+        top: 67px;
+    }
+
+    #title-section {
+        margin-bottom: 100px;
+    }
+
+    select, #left-filter, #right-filter {
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        padding: 8px;
+        height: 40px;
+    }
+
+    select {
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #left-filter, #right-filter {
+        width: 100px;
+        display: inline-block;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px; 
+        
+    }
+
+    #upload-file-paragraph {
+        padding: 300px 0px;
+    }
+
+
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div>
+
+        <section id="title-section">
+            <div class="bg-light fs-2 p-5">
+                <div class="container-lg">
+                    <p class="display-2 text-center mb-5">P & S arrival time picking</p>
+                    <div id="joke-div">
+                        <p class="text-center fs-3">Why the P and S waves are not getting along ?</p>
+                        <p class="text-center fs-3 text-muted">Because S is always late!</p>
+                    </div>
+                    
+                    <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+                </div>
+            </div>
+        </section>
+
+        <section id="explanation-section">
+            <div class="container-lg fs-4">
+                <p>
+                    Select the <kbd>P</kbd> or <kbd>S</kbd> wave and click on any of the waveforms to
+                    pick its arrival time. Fill free to use the filter dropdown 
+                    to apply a filter to the waveforms, so that you can be more 
+                    precise in your picking. Using the entry boxes on the right 
+                    you can insert manually a filter. If you insert a value just for the left
+                    filter, a high filter is going to be applied with frequency, the one you specified.
+                    If you insert a value just for the right filter, a lowpass
+                    filter is going to be applied with frequency, the one you specified.
+                    If both are filled, a bandpass filter is applied. Use the <kbd>&ltenter&gt</kbd>
+                    key to apply the manual filters.
+                </p>
+                
+            </div>
+        </section>
+
+
+        <section id="graph-section">
+            <div class="container-lg mt-5 bg-dark p-3 ps-5 pe-5 fs-2 text-light rounded">
+                <div class="row justify-content-center align-items-center gy-3">
+                    <div class="col-12 col-lg-12 col-xxl-3 col-sm-6">
+                        <button class="btn btn-info" id="upload-button-top">Upload</button>
+                        <button class="btn btn-success" id="save-arrivals" disabled>Save arrivals</button>
+                    </div>
+                    <div class="text-start col-lg-4 col-12 col-xxl-3 col-sm-6">
+                        <button class="btn btn-secondary" id="button-p-wave" disabled>P</button>
+                        <button class="btn btn-secondary me-4" id="button-s-wave"  disabled>S</button>     
+                        <button class="btn btn-danger" id="button-remove-p" disabled>del P</button>
+                        <button class="btn btn-danger"  id="button-remove-s" disabled>del S</button>
+                    </div>
+                    <div class="text-center col-lg-4 col-12 col-xxl-3 col-sm-6">
+                        <select id="filter"  disabled>
+                            <option disabled>--select a filter--</option>
+                            <option selected>initial</option>
+                            <option>1-2</option>
+                            <option>1-3</option>
+                            <option>1-5</option>
+                            <option>1-10</option>
+                            <option>0.1-10</option>
+                        </select>
+                    </div>
+                    <div class="text-end col-lg-4 col-12 col-xxl-3 col-sm-6">
+                        <input type="number" id="left-filter" placeholder="eg. 0.1"  disabled>
+                        <input type="number" id="right-filter" placeholder="eg. 3"  disabled>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-lg bg-secondary text-light rounded mb-5 ps-0 pe-0" id="graph-area-div">
+                
+                <p class="text-center fs-2" id="upload-file-paragraph">Start by 
+                    <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
+                    <button class="btn btn-info upload-button" id="upload-button-bottom">uploading</button> 
+                    an <code>mseed</code> file...
+                </p>
+                <div id="graph">
+                    
+                </div>
+            </div>
+            
+        </section>
+
+
+       
+    </div>
+
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/pick-arrivals.js"></script>
+ 
+
+
+        
+
+{% endblock %}

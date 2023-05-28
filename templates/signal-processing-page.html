@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+<style>
+    #wave-one-line {
+        position: relative;
+        top: 67px;
+    }
+
+    #title-section {
+        margin-bottom: 100px;
+    }
+
+    select, input, #left-filter, #right-filter {
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+        font-size: 20px;
+        padding: 8px;
+        height: 40px;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 150px;
+    }
+
+
+    #graph-tab img{
+        width:30px; 
+        height: 25px; 
+        margin-right: 6px;
+        
+    }
+
+    #tab-content {
+        height: 150px;
+        position: relative;
+        padding: 20px;
+    }
+
+    
+
+    .button-bottom-right {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 100px;
+    }
+
+    #upload-file-paragraph {
+        padding: 300px 0px;
+    }
+  
+
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div>
+
+    <section id="title-section">
+        <div class="bg-light fs-2 p-5">
+            <div class="container-lg">
+                <p class="display-2 text-center mb-5">Signal Processing</p>
+                <div id="joke-div">
+                    <p class="text-center fs-3">Why the signals go to the barber shop?</p>
+                    <p class="text-center fs-3 text-muted">To get their hair trimmed!</p>
+                </div>
+                
+                <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+            </div>
+        </div>
+    </section>
+
+    <section id="explanation-section">
+        <div class="container-lg fs-4">
+            <p>
+                Upload an mseed file to process it using the available options.
+            </p>
+            
+        </div>
+    </section>
+
+
+    <section id="graph-section">
+        <div class="container-lg fs-4 bg-info rounded">
+            <ul class="nav nav-tabs" id="graph-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark active" id="detrend-tab" data-bs-toggle="tab" data-bs-target="#detrend-tab-pane" type="button" role="tab" aria-controls="detrend-tab-pane" aria-selected="true"><img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">Detrend</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="taper-tab" data-bs-toggle="tab" data-bs-target="#taper-tab-pane" type="button" role="tab" aria-controls="taper-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/taper.png" class="img-fluid">Taper</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="trim-tab" data-bs-toggle="tab" data-bs-target="#trim-tab-pane" type="button" role="tab" aria-controls="trim-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/trim.png" class="img-fluid">Trim</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-tab-pane" type="button" role="tab" aria-controls="upload-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/upload-file.png" class="img-fluid">Upload</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="tab-content">
+                <div class="tab-pane fade show active" id="detrend-tab-pane" role="tabpanel" aria-labelledby="detrend-tab" tabindex="0">
+                    <label for="detrend-type">detrend type</label>
+                    <select id="detrend-type">
+                        <option value="simple" name="simple" selected>simple</option>
+                        <option value="linear" name="simple">linear</option>
+                        <option value="constant" name="simple">constant</option>
+                        <option value="polynomial" name="simple">polynomial</option>
+                        <option value="spline" name="simple">spline</option>
+                    </select>
+                    <button class="btn btn-dark button-bottom-right" id="detrend-button">detrend</button>
+                </div>
+                <div class="tab-pane fade" id="taper-tab-pane" role="tabpanel" aria-labelledby="taper-tab" tabindex="0">
+                    <div class="row">
+                        <div class="col">
+                            <label for="taper-type">detrend type</label>
+                            <select id="taper-type">
+                                <option value="cosine" name="cosine">cosine</option>
+                                <option value="barthann" name="barthann">barthann</option>
+                                <option value="bartlett" name="bartlett">bartlett</option>
+                                <option value="blackman" name="blackman">blackman</option>
+                                <option value="blackmanharris" name="blackmanharris">blackmanharris</option>
+                                <option value="bohman" name="bohman">bohman</option>
+                                <option value="boxcar" name="boxcar">boxcar</option>
+                                <option value="chebwin" name="chebwin">chebwin</option>
+                                <option value="flattop" name="flattop">flattop</option>
+                                <option value="gaussian" name="gaussian">gaussian</option>
+                                <option value="general_gaussian" name="general_gaussian">general_gaussian</option>
+                                <option value="hamming" name="hamming">hamming</option>
+                                <option value="hann" name="hann">hann</option>
+                                <option value="kaiser" name="kaiser">kaiser</option>
+                                <option value="nuttall" name="nuttall">nuttall</option>
+                                <option value="parzen" name="parzen" selected>parzen</option>
+                                <option value="slepian" name="slepian">slepian</option>
+                                <option value="triang" name="triang">triang</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="taper-side">detrend side</label>
+                            <select id="taper-side">
+                                <option value="left" name="left">left</option>
+                                <option value="right" name="right">right</option>
+                                <option value="both" name="both" selected>both</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="taper-length">detrend length (%)</label>
+                            <input id="taper-length" type="number" min="0" max="0.5" step="0.05" value="0.3">
+                        </div>
+                    </div>
+                    <button class="btn btn-dark button-bottom-right" id="taper-button">taper</button>
+                </div>
+                <div class="tab-pane fade" id="trim-tab-pane" role="tabpanel" aria-labelledby="trim-tab" tabindex="0">
+                    <label id="left-side">left side</label>
+                    <input id="left-side" type="number" name="left-side" min="0" step="1" value="0" />
+                    <label id="right-side">right side</label>
+                    <input id="right-side" type="number" name="right-side" min="0" step="1" value="0" />
+                    <button class="btn btn-dark button-bottom-right" id="trim-button">trim</button>
+                </div>
+                <div class="tab-pane fade" id="upload-tab-pane" role="tabpanel" aria-labelledby="upload-tab" tabindex="0">
+                    <p class="text-center mt-5 fs-3"><button class="btn btn-dark" id="upload-button-top">Upload</button> another file...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section id="graph-section">
+
+        <div class="container-lg bg-dark text-light rounded mb-5 ps-0 pe-0" id="graph-area-div">
+            
+            
+            <div id="graph">
+                <p class="text-center fs-2" id="upload-file-paragraph">Start by 
+                    <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
+                    <button class="btn btn-info upload-button" id="upload-button-bottom">uploading</button> 
+                    an <code>mseed</code> file...
+                </p>
+                
+            </div>
+        </div>
+        
+    </section>
+
+        
+       
+    
+</div>
+
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/signal-processing.js"></script>
+
+{% endblock %}
