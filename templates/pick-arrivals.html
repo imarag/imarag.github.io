@@ -94,7 +94,7 @@
                 <div class="row justify-content-center align-items-center gy-3">
                     <div class="col-12 col-lg-12 col-xxl-3 col-sm-6">
                         <button class="btn btn-info" id="upload-button-top">Upload</button>
-                        <button class="btn btn-success" id="save-arrivals" disabled>Save arrivals</button>
+                        <button class="btn btn-success" id="save-arrivals" disabled>Show arrivals</button>
                     </div>
                     <div class="text-start col-lg-4 col-12 col-xxl-3 col-sm-6">
                         <button class="btn btn-secondary" id="button-p-wave" disabled>P</button>
@@ -121,12 +121,17 @@
             </div>
 
             <div class="container-lg bg-secondary text-light rounded mb-5 ps-0 pe-0" id="graph-area-div">
-                
+                <div class="text-center mt-5 bg-white text-dark" id="spinner-div">
+                    <div class="spinner-border spinner-border-xl" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
                 <p class="text-center fs-2" id="upload-file-paragraph">Start by 
                     <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
                     <button class="btn btn-info upload-button" id="upload-button-bottom">uploading</button> 
                     an <code>mseed</code> file...
                 </p>
+                
                 <div id="graph">
                     
                 </div>

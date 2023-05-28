@@ -12,8 +12,15 @@ let trimRightSide = document.querySelector("#right-side");
 let uploadButtonTop = document.querySelector("#upload-button-top");
 let uploadButtonBottom = document.querySelector("#upload-button-bottom");
 let uploadInput = document.querySelector('#upload-input');
+let spinnerDiv = document.querySelector("#spinner-div");
 let config;
 let layout;
+
+let listDisabled = [
+    detrendButton, taperButton, trimButton
+];
+
+spinnerDiv.style.display = 'none';
 
 
 uploadButtonTop.addEventListener('click', function() {
@@ -38,23 +45,40 @@ uploadInput.addEventListener('change', function(event) {
 
         // Create a new FormData object
     const formData = new FormData();
+    spinnerDiv.style.display = 'block';
 
-    // Append the MSeed file to the FormData object
     formData.append('file', mseedFile);
+    formData.append('view-page', 'signal-processing');
 
     fetch('/upload-mseed-file', {
         method: 'POST',
         body: formData
       })
-        .then(response => response.json())
-        .then(mseedData => {
-            let convertedMseedData = prepareTracesList(mseedData);
-            createNewPlot(convertedMseedData);
-        })
-        .catch(error => {
-          // Handle any errors during the upload process
-          console.error('Error uploading MSeed file:', error);
-        });
+    .then(response => { 
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            return response.json().then(data => {
+                spinnerDiv.style.display = 'none';
+                alert('Error: ' + data['error-message']);
+                throw new Error(data['error-message']);
+            })
+        }
+    })
+    .then(mseedData => {
+        spinnerDiv.style.display = 'none';
+        if (mseedData['warning-message']) {
+            alert('Warning: ' + mseedData['warning-message']);
+        }
+        let convertedMseedData = prepareTracesList(mseedData);
+        initializeParameters();
+        createNewPlot(convertedMseedData);
+    })
+    .catch(error => {
+        // Handle any errors during the upload process
+        console.error('Error uploading MSeed file:', error);
+    });
 })
 
 
@@ -85,8 +109,16 @@ function prepareTracesList(mseedDataObject) {
 
 
 
-function createNewPlot(tracesList) {
 
+function initializeParameters() {
+
+    config = {
+        scrollZoom: true,
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
+    };
+    
     layout = {
         title: '',
         height: 900,
@@ -100,42 +132,75 @@ function createNewPlot(tracesList) {
         }
     };
 
-    config = {
-    
-        scrollZoom: true,
-        responsive: true,
-        displayModeBar: true,
-        modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
-        
-    };
+    for (el of listDisabled) {
+        el.disabled = false;
+    }
+}
 
 
+
+
+function createNewPlot(tracesList) {
     Plotly.newPlot('graph', tracesList, layout, config);
 }
 
 
+detrendButton.addEventListener('click', () => { 
+    processGETRequest(
+        'detrend', {"detrend-type": detrendType.value}
+    ) 
+});
+taperButton.addEventListener('click', () => { 
+    processGETRequest(
+        'taper', {"taper-type": taperType.value, "taper-side": taperSide.value, "taper-length": taperLength.value}
+    ) 
+});
+trimButton.addEventListener('click', () => { 
+    processGETRequest(
+        'trim', {"trim-left-side": trimLeftSide.value, "trim-right-side": trimRightSide.value}
+    ) 
+});
 
-function signalProcessingRequest(method) {
-    fetch(`/apply-processing?method=${}`)
+
+
+function processGETRequest(method, methodObject) {
+    console.log(methodObject);
+    let URLFromObject = '';
+    for (item in methodObject) {
+        URLFromObject += `&${item}=${methodObject[item]}`;
+    }
+    console.log(URLFromObject);
+    fetch(`/apply-processing?method=${method}&${URLFromObject}`)
+    .then(response => { 
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            return response.json().then(data => {
+                spinnerDiv.style.display = 'none';
+                alert('Error: ' + data['error-message']);
+                throw new Error(data['error-message']);
+            })
+        }
+    })
+    .then(mseedData => {
+        spinnerDiv.style.display = 'none';
+        if (mseedData['warning-message']) {
+            alert('Warning: ' + mseedData['warning-message']);
+        }
+
+        let convertedMseedData = prepareTracesList(mseedData);
+        initializeParameters();
+        createNewPlot(convertedMseedData);
+    })
+    .catch(error => {
+      // Handle any errors during the upload process
+      console.error('Error uploading MSeed file:', error);
+    });
 }
 
-// detrendButton.addEventListener('click', () => { 
-//     requestData(
-//         'detrend', {"detrend-type": detrendType.value}
-//     ) 
-// });
-// taperButton.addEventListener('click', () => { 
-//     requestData(
-//         'taper', {"taper-type": taperType.value, "taper-side": taperSide.value, "taper-length": taperLength.value}
-//     ) 
-// });
-// trimButton.addEventListener('click', () => { 
-//     requestData(
-//         'trim', {"trim-left-side": trimLeftSide.value, "trim-right-side": trimRightSide.value}
-//     ) 
-// });
 
-// plotData();
+
 
 // function sendPostRequest(postObject) {
 //     fetch("/update-stream-json-file", {

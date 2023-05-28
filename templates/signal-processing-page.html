@@ -104,6 +104,12 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link text-dark" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-tab-pane" type="button" role="tab" aria-controls="upload-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/upload-file.png" class="img-fluid">Upload</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="initial-tab" data-bs-toggle="tab" data-bs-target="#initial-tab-pane" type="button" role="tab" aria-controls="initial-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/initial.png" class="img-fluid">Reset</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="save-tab" data-bs-toggle="tab" data-bs-target="#save-tab-pane" type="button" role="tab" aria-controls="save-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/save.png" class="img-fluid">Save</button>
+                </li>
             </ul>
             <div class="tab-content" id="tab-content">
                 <div class="tab-pane fade show active" id="detrend-tab-pane" role="tabpanel" aria-labelledby="detrend-tab" tabindex="0">
@@ -115,7 +121,7 @@
                         <option value="polynomial" name="simple">polynomial</option>
                         <option value="spline" name="simple">spline</option>
                     </select>
-                    <button class="btn btn-dark button-bottom-right" id="detrend-button">detrend</button>
+                    <button class="btn btn-dark button-bottom-right" id="detrend-button" disabled>detrend</button>
                 </div>
                 <div class="tab-pane fade" id="taper-tab-pane" role="tabpanel" aria-labelledby="taper-tab" tabindex="0">
                     <div class="row">
@@ -155,17 +161,23 @@
                             <input id="taper-length" type="number" min="0" max="0.5" step="0.05" value="0.3">
                         </div>
                     </div>
-                    <button class="btn btn-dark button-bottom-right" id="taper-button">taper</button>
+                    <button class="btn btn-dark button-bottom-right" id="taper-button" disabled>taper</button>
                 </div>
                 <div class="tab-pane fade" id="trim-tab-pane" role="tabpanel" aria-labelledby="trim-tab" tabindex="0">
-                    <label id="left-side">left side</label>
+                    <label for="left-side">left side</label>
                     <input id="left-side" type="number" name="left-side" min="0" step="1" value="0" />
-                    <label id="right-side">right side</label>
+                    <label for="right-side">right side</label>
                     <input id="right-side" type="number" name="right-side" min="0" step="1" value="0" />
-                    <button class="btn btn-dark button-bottom-right" id="trim-button">trim</button>
+                    <button class="btn btn-dark button-bottom-right" id="trim-button" disabled>trim</button>
                 </div>
                 <div class="tab-pane fade" id="upload-tab-pane" role="tabpanel" aria-labelledby="upload-tab" tabindex="0">
                     <p class="text-center mt-5 fs-3"><button class="btn btn-dark" id="upload-button-top">Upload</button> another file...</p>
+                </div>
+                <div class="tab-pane fade" id="initial-tab-pane" role="tabpanel" aria-labelledby="initial-tab" tabindex="0">
+                    <p class="text-center mt-5 fs-3"><button class="btn btn-danger" id="upload-button-top">Remove</button> all filters and get the initial waveform...</p>
+                </div>
+                <div class="tab-pane fade" id="save-tab-pane" role="tabpanel" aria-labelledby="save-tab" tabindex="0">
+                    <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
                 </div>
             </div>
         </div>
@@ -176,7 +188,11 @@
 
         <div class="container-lg bg-dark text-light rounded mb-5 ps-0 pe-0" id="graph-area-div">
             
-            
+            <div class="text-center mt-5 bg-white text-dark" id="spinner-div">
+                <div class="spinner-border spinner-border-xl" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
             <div id="graph">
                 <p class="text-center fs-2" id="upload-file-paragraph">Start by 
                     <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">

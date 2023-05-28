@@ -3,9 +3,10 @@ let verticalLinesList;
 let annotationsList;
 let annotationsText = ['P', 'S'];
 let PSArrivalValues;
-let currentSelectedWave = 'P';
 let wavesPicked;
+let currentSelectedWave;
 let layout;
+let config;
 
 let buttonRemoveP = document.querySelector("#button-remove-p");
 let buttonRemoveS = document.querySelector("#button-remove-s");
@@ -16,8 +17,12 @@ let leftFilter = document.querySelector("#left-filter");
 let rightFilter = document.querySelector("#right-filter");
 let uploadButtonTop = document.querySelector("#upload-button-top");
 let uploadButtonBottom = document.querySelector("#upload-button-bottom");
-let uploadInput = document.querySelector('#upload-input')
+let uploadInput = document.querySelector('#upload-input');
 let saveArrivals = document.querySelector("#save-arrivals");
+let uploadFileParagraph = document.querySelector("#upload-file-paragraph");
+let spinnerDiv = document.querySelector("#spinner-div");
+
+spinnerDiv.style.display = 'none';
 
 let listDisabled = [
     buttonPWave, buttonSWave, selectFilter, 
@@ -26,14 +31,6 @@ let listDisabled = [
 
 buttonPWave.style.backgroundColor = "#333";
 
-let config = {
-    
-    scrollZoom: true,
-    responsive: true,
-    displayModeBar: true,
-    modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
-    
-};
 
 
 saveArrivals.addEventListener('click', function() {
@@ -48,37 +45,53 @@ saveArrivals.addEventListener('click', function() {
 
 uploadButtonTop.addEventListener('click', function() {
     uploadInput.click();
-  });
+});
 
 uploadButtonBottom.addEventListener('click', function() {
-uploadInput.click();
+    uploadInput.click();
 });
 
 uploadInput.addEventListener('change', function(event) {
 
-    let uploadFileParagraph = document.querySelector("#upload-file-paragraph");
     
     uploadFileParagraph.style.display = 'none';
 
-    const mseedFile = uploadInput.files[0];
+    let mseedFile = uploadInput.files[0];
     
-    const chunkSize = 1024 * 1024;
+    let chunkSize = 1024 * 1024;
     let offset = 0;
 
         // Create a new FormData object
-    const formData = new FormData();
+    let formData = new FormData();
 
     // Append the MSeed file to the FormData object
     formData.append('file', mseedFile);
-
+    formData.append('view-page', 'pick-arrivals');
+    spinnerDiv.style.display = 'block';
     fetch('/upload-mseed-file', {
         method: 'POST',
         body: formData
       })
-        .then(response => response.json())
+        .then(response => { 
+            if (response.ok) {
+                return response.json();
+            }
+            else {
+                return response.json().then(data => {
+                    spinnerDiv.style.display = 'none';
+                    alert('Error: ' + data['error-message']);
+                    throw new Error(data['error-message']);
+                })
+            }
+        })
         .then(mseedData => {
-            console.log(mseedData);
+            spinnerDiv.style.display = 'none';
+            if (mseedData['warning-message']) {
+                alert('Warning: ' + mseedData['warning-message']);
+            }
+
             let convertedMseedData = prepareTracesList(mseedData);
+            initializeParameters();
             createNewPlot(convertedMseedData);
         })
         .catch(error => {
@@ -160,6 +173,7 @@ buttonRemoveP.addEventListener('click', () => {
 
 buttonRemoveS.addEventListener('click', () => {
     buttonRemoveS.disabled = true;
+    
     buttonSWave.style.backgroundColor = '#333';
     buttonPWave.style.backgroundColor = '#6c757d';
     
@@ -221,33 +235,56 @@ function prepareTracesList(mseedDataObject) {
 }
 
 
+
 function applyFilterPost(filterValue) {
+    spinnerDiv.style.display = 'block';
     fetch(`/apply-filter?filter=${filterValue}`)
     .then(response => {
-        let filteredJSONData = response.json();
-        console.log(filteredJSONData);
-        return filteredJSONData
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            return response.json().then(data => {
+                spinnerDiv.style.display = 'none';
+                alert('Error: ' + data['error-message']);
+                throw new Error(data['error-message']);
+            })
+        }
     })
     .then(mseedData => {
-            console.log(mseedData);
+            spinnerDiv.style.display = 'none';
             let convertedMseedData = prepareTracesList(mseedData);
-            console.log(convertedMseedData);
             createNewPlot(convertedMseedData);
         })
     .catch(error => {
+            alert("The connection between your web browser and the server was unexpectedly closed. Try again, selecting another filter.");
+            spinnerDiv.style.display = 'none';
             console.error('Error:', error);
         });
 }
 
 
-
-function createNewPlot(tracesList) {
+function initializeParameters() {
     verticalLinesList  = [];
     annotationsList = [];   
     wavesPicked = [];
     PSArrivalValues = {P: null, S: null};
+    currentSelectedWave = 'P';
+    buttonRemoveS.disabled = true;
+    buttonRemoveP.disabled = true;
+    selectFilter.value = 'initial';
+    leftFilter.value = '';
+    rightFilter.value = '';
     buttonPWave.style.backgroundColor = "#333";
+    buttonSWave.style.backgroundColor = "#6c757d";
 
+    config = {
+        scrollZoom: true,
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
+    };
+    
     layout = {
         title: '',
         height: 900,
@@ -264,7 +301,10 @@ function createNewPlot(tracesList) {
     for (el of listDisabled) {
         el.disabled = false;
     }
+}
 
+function createNewPlot(tracesList) {
+    
     Plotly.newPlot('graph', tracesList, layout, config).then(function(graph) {
 
         graph.on('plotly_doubleclick', function() {
@@ -300,11 +340,11 @@ function createNewPlot(tracesList) {
             }
 
             
-
+            console.log(tracesList.length);
             for (let i=0; i<tracesList.length; i++) {
                 const yValues = tracesList[i]["y"].map(value => Number(value));
-                const yMin = Math.min.apply(null, yValues);
-                const yMax = Math.max.apply(null, yValues);
+                const yMin = Math.min(...yValues);
+                const yMax = Math.max(...yValues);
             verticalLinesList.push(
                 {
                     type: 'line',
