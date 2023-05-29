@@ -25,3 +25,51 @@
 section {
     margin-bottom: 100px;
 }
+
+.reveal-l{
+    position: relative;
+    transform: translateX(150px);
+    opacity: 0;
+    transition: 1s all ease;
+  }
+
+  .reveal-l.active{
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .reveal-r{
+    position: relative;
+    transform: translateX(-150px);
+    opacity: 0;
+    transition: 1s all ease;
+  }
+
+  .reveal-r.active{
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .reveal-u{
+    position: relative;
+    transform: translateY(150px);
+    opacity: 0;
+    transition: 1s all ease;
+  }
+
+  .reveal-u.active{
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .reveal.active{
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  #interactive-section a:hover {
+    background-color: #212529 !important;
+    color: #0dcaf0 !important;
+  }
+  
+ 

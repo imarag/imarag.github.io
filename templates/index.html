@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/static/css/index-style.css">
 {% endblock %}
 
+
+
 {% block content %}
             
     <section id="main-index-background-image">
@@ -31,6 +33,9 @@
 
         
     </section>
+
+    
+    
 
     
     <section id="index-second-section-margin">
@@ -95,7 +100,7 @@
     
     
     <section class="bg-light">
-        <div class="container-lg">
+        <div class="container-lg reveal-r">
             <h2 class="display-4 text-muted text-center">Learn about the P and S wave arrivals and the different phases</h2>
             <canvas id="line-chart-arrivals" class="mt-5"></canvas>
         </div>
@@ -106,10 +111,10 @@
     <section>
         <div class="container-lg" style="border-left: solid grey 7px; padding-left: 60px;">
             <div class="row align-items-center">
-                <div class="col-lg-6">
+                <div class="col-lg-6 reveal-r">
                     <h2 class="display-4 text-muted text-start">Learn about the elastic rebound theory<br><span class="text-muted display-6">(hover to the image)</span></h2>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-6 reveal-l">
                     <img src="/static/img/index-images/fault-animation-start.jpg" alt="elastic rebound theory" class="img-fluid" id="fault-animation">
                 </div>
             </div>
@@ -120,19 +125,51 @@
     <section>
         <div class="container-lg" style="border-left: solid grey 7px; padding-left: 60px;">
             <div class="row justify-content-around align-items-center">
-                <div class="col-lg-6 ">
+                <div class="col-lg-6  reveal-r">
                     <h2 class="display-4 text-muted text-start">Learn about the Site Effect<br><span class="text-muted display-6">(hover to the image)</span></h2>
                 </div>
-                <div class="col-lg-6 ">
+                <div class="col-lg-6  reveal-l">
                     <img src="/static/img/index-images/site-effect-animation-start.jpg" alt="Site effect"  class="img-fluid" id="site-effect-animation">
                 </div>
             </div>
         </div>
     </section>
+
+    <section class="bg-dark reveal-r" id="interactive-section">
+        <div class="container-lg">
+            <div class="row pt-5 pb-5 justify-content-between align-items-center">
+                <div class="col-4">
+                    <div class="list-group">
+                        <a href="#" id="trim-hover" class="list-group-item list-group-item-action text-bg-info border-bottom border-dark" aria-current="true">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 p-5 display-6">Trim the waveform</h5>
+                        </div>
+                        </a>
+                        <a href="#" id="taper-hover" class="list-group-item list-group-item-action  text-bg-info  border-bottom border-dark">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 p-5 display-6">Apply taper techniques</h5>
+                        </div>
+                        </a>
+                        <a href="#" id="picking-hover" class="list-group-item list-group-item-action  text-bg-info">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1 p-5 display-6">Select the P and S arrivals</h5>
+                        </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-8">
+                    <img class="img-fluid rounded" id="image-hover">
+                    <p class="text-center text-light display-3" id="hover-to-display-paragraph">Hover left to display</p>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
     <section>
     
 
-        <div class="shadow p-3 mb-5 bg-white rounded container-lg bg-light">
+        <div class="shadow fs-3 p-3 mb-5 bg-white rounded container-lg bg-light">
             <figure">
                 <blockquote>
                     <p>They joy of being a seismologist comes to you, when you find something new about the earth's interior from the observation of seismic waves obtained on the surface, and realize that you did it without penetrating the earth or touching or examining it directly.</p>

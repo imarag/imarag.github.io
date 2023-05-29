@@ -126,17 +126,17 @@ function startIntervalFunc(sourceTitle)
   counter = 1;
   if (sourceTitle === 'elastic-rebound')
   {
-    imageElastiRebound.src = '/images/index-images/elastic-rebound/elastic-reb1.png';
+    imageElastiRebound.src = '/static/img/index-images/elastic-rebound/elastic-reb1.png';
     intervalID = setInterval(()=>{change_picture_func(sourceTitle, 10)}, 150);
   }
   else if (sourceTitle === 'site-effect')
   {
-    imageSiteEffect.src = '/images/index-images/site-effect/site-effect-anim1.png';
+    imageSiteEffect.src = '/static/img/index-images/site-effect/site-effect-anim1.png';
     intervalID = setInterval(()=>{change_picture_func(sourceTitle, 18)}, 150);
   }
   else if (sourceTitle === 'earthquakes')
   {
-    imageEarthquakes.src = '/images/index-images/earthquakes/earthquakes1.png';
+    imageEarthquakes.src = '/static/img/index-images/earthquakes/earthquakes1.png';
     intervalID = setInterval(()=>{change_picture_func(sourceTitle, 9)}, 200);
   }
   
@@ -156,17 +156,17 @@ function change_picture_func(sourceTitle, totalPictures)
 
   if (sourceTitle === 'elastic-rebound')
   {
-    let imagePath = `/images/index-images/elastic-rebound/elastic-reb${counter}.png`;
+    let imagePath = `/static/img/index-images/elastic-rebound/elastic-reb${counter}.png`;
     imageElastiRebound.src = imagePath;
   }
   else if (sourceTitle === 'site-effect')
   {
-    let imagePath = `/images/index-images/site-effect/site-effect-anim${counter}.png`;
+    let imagePath = `/static/img/index-images/site-effect/site-effect-anim${counter}.png`;
     imageSiteEffect.src = imagePath;
   }
   else if (sourceTitle === 'earthquakes')
   {
-    let imagePath = `/images/index-images/earthquakes/earthquakes${counter}.png`;
+    let imagePath = `/static/img/index-images/earthquakes/earthquakes${counter}.png`;
     imageEarthquakes.src = imagePath;
   }
   
@@ -182,17 +182,75 @@ let imageFaultAnimation = document.querySelector('#fault-animation');
 let imageSiteEffectAnimation = document.querySelector('#site-effect-animation');
 
 imageFaultAnimation.addEventListener('mouseover', ()=>{
-  imageFaultAnimation.src = '/images/index-images/fault-animation.gif';
+  imageFaultAnimation.src = '/static/img/index-images/fault-animation.gif';
 });
 imageFaultAnimation.addEventListener('mouseleave', ()=>{
-  imageFaultAnimation.src = '/images/index-images/fault-animation-start.jpg';
+  imageFaultAnimation.src = '/static/img/index-images/fault-animation-start.jpg';
 });
 
 
 imageSiteEffectAnimation.addEventListener('mouseover', ()=>{
-  imageSiteEffectAnimation.src = '/images/index-images/site-effect-animation.gif';
+  imageSiteEffectAnimation.src = '/static/img/index-images/site-effect-animation.gif';
 });
 imageSiteEffectAnimation.addEventListener('mouseleave', ()=>{
-  imageSiteEffectAnimation.src = '/images/index-images/site-effect-animation-start.jpg';
+  imageSiteEffectAnimation.src = '/static/img/index-images/site-effect-animation-start.jpg';
 });
 
+
+function reveal() {
+
+  var revealsRight = document.querySelectorAll(".reveal-r");
+  var revealsLeft = document.querySelectorAll(".reveal-l");
+  var windowHeight = window.innerHeight;
+  for (var i = 0; i < revealsLeft.length; i++) {
+      
+      var elementTop = revealsLeft[i].getBoundingClientRect().top;
+      var elementVisible = 500;
+
+      if (elementTop < windowHeight - elementVisible) {
+         
+        revealsLeft[i].classList.add("active");
+      } else {
+        
+        revealsLeft[i].classList.remove("active");
+      }
+  }
+
+  for (var i = 0; i < revealsRight.length; i++) {
+      
+    var elementTop = revealsRight[i].getBoundingClientRect().top;
+    var elementVisible = 500;
+
+    if (elementTop < windowHeight - elementVisible) {
+       
+      revealsRight[i].classList.add("active");
+    } else {
+      
+      revealsRight[i].classList.remove("active");
+    }
+}
+}
+
+window.addEventListener("scroll", reveal);
+
+
+let imageHover = document.querySelector('#image-hover');
+let divTrimHover = document.querySelector("#trim-hover");
+let divTaperHover = document.querySelector("#taper-hover");
+let divPickingHover = document.querySelector("#picking-hover");
+let hoverToDisplayParagraph = document.querySelector("#hover-to-display-paragraph");
+
+divTrimHover.addEventListener('mouseover', () => {
+  imageHover.src = "/static/img/index-images/trim-gif.gif";
+  hoverToDisplayParagraph.style.display = 'none';
+})
+
+divTaperHover.addEventListener('mouseover', () => {
+  imageHover.src = "/static/img/index-images/taper-gif.gif";
+  hoverToDisplayParagraph.style.display = 'none';
+})
+
+divPickingHover.addEventListener('mouseover', () => {
+  imageHover.src = "/static/img/index-images/picking-gif.gif";
+  hoverToDisplayParagraph.style.display = 'none';
+})
