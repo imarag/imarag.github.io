@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+
+<style>
+    #wave-one-line {
+        position: relative;
+        top: 67px;
+    }
+
+    #title-section {
+        margin-bottom: 100px;
+    }
+
+    #noise-div {
+        transform: translateX(-200px);
+        opacity: 0;
+        transition: all 0.8s;
+
+    }
+
+    #noise-div.active {
+        transform: translateX(0px);
+        opacity: 1;
+    }
+
+    #options-menu {
+        transform: translateY(200px);
+        opacity: 0;
+        transition: all 0.8s;
+
+    }
+
+    #options-menu.active {
+        transform: translateY(0px);
+        opacity: 1;
+    }
+
+    .hover-image:hover {
+        background-color: rgb(182, 182, 182);
+    }
+
+    
+
+
+
+
+    
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div>
+
+        <section id="title-section">
+            <div class="bg-light fs-2 p-5">
+                <div class="container-lg">
+                    <p class="display-2 text-center mb-5">Fourier Spectra</p>
+                    <div id="joke-div">
+                        <p class="text-center fs-3">A funny fourier joke</p>
+                        <p class="text-center fs-3 text-muted">Because S is always late!</p>
+                    </div>
+                    
+                    <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container-lg">
+
+                <div class="bg-dark p-5 mb-5 text-light rounded">
+                    <div class="row justify-content-center align-items-center text-center">
+                        <div class="col">
+                            <p class="fs-4">Calculate the Fourier Spectra on the whole time series</p>
+                        </div>
+                        <div class="col">
+                            <p class="fs-4">Calculate the Fourier Spectra between a window</p>
+                        </div>
+                    </div>
+                    <div class="card-group text-dark">
+                        <div class="card">
+                            <button id="whole-signal-button">
+                                <img src="/static/img/fourier-images/whole-signal.png" class="card-img-bottom hover-image" alt="whole signal">
+                            </button>
+                        </div>
+                        <div class="card">
+                            <button id="window-signal-button">
+                                <img src="/static/img/fourier-images/window-signal.png" class="card-img-top hover-image" alt="window signal">
+                            </button>
+                        </div>
+                    </div>
+                    <div id="options-menu" class="mt-5">
+                        <div class="row border border-dark justify-content-center align-items-center text-center">
+                            <div class="col">
+                                <p>Window left side (sec)</p>
+                            </div>
+                            <div class="col">
+                                <input class="rounded" type="number" id="signal-start" value="5">
+                            </div>
+                        </div>
+
+                        <div class="row border border-dark justify-content-center align-items-center text-center">
+                            <div class="col">
+                                <p>window total length (sec)</p>
+                            </div>
+                            <div class="col">
+                                <input class="rounded" type="number" id="window-length" value="5">
+                            </div>
+                        </div>
+
+                        <div class="row border border-dark justify-content-center align-items-center text-center mt-4">
+                            <div class="col">
+                                <input type="checkbox" id="noise-fourier">
+                                <label for="noise-fourier">Compute noise fourier too</label>
+                            </div>
+                            <div class="col" id="noise-div">
+                                <label for="noise-start">Noise right window (sec)</label>
+                                <input class="rounded" type="number" id="noise-start" value="2">
+                            </div>
+                        </div>
+
+                        <div class="row text-center justify-content-center align-items-center mt-5">
+                            <div class="col">
+                                <button class="btn btn-success" id="compute-fourier-button">Compute Fourier</button>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container-lg">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="time-signal-tab" data-bs-toggle="tab" data-bs-target="#time-signal" type="button" role="tab" aria-controls="time-signal-tab-pane" aria-selected="true">Time signal</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="fourier-spectra-tab" data-bs-toggle="tab" data-bs-target="#fourier-spectra" type="button" role="tab" aria-controls="fourier-spectra-tab-pane" aria-selected="false">Fourier spectra</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="graph-waveform" role="tabpanel" aria-labelledby="time-signal-tab" tabindex="0">
+                        <div class="bg-secondary text-center p-5 rounded">
+                            <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
+                            <p class="display-6 text-dark">Start by <button class="btn btn-primary upload-button" id="upload-button-top">uploading</button>  a record...</p>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="graph-fourier" role="tabpanel" aria-labelledby="fourier-spectra-tab" tabindex="0">
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/fourier.js"></script>
+ 
+
+
+        
+
+{% endblock %}

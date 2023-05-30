@@ -176,6 +176,32 @@ def process_signal():
     return json_data
 
 
+@app.route('/compute-fourier', methods=['GET'])
+def compute_fourier():
+
+    mseed_data = read(uploaded_mseed_file_path)
+    starttime = mseed_data[0].stats.starttime
+    total_seconds = mseed_data[0].stats.endtime - starttime
+    fs = mseed_data[0].stats["sampling_rate"]
+    fnyq = fs / 2
+    dt = mseed_data[0].stats["delta"]
+    npts = mseed_data[0].stats["npts"]
+    sl = int(npts / 2)
+    freq_x = np.linspace(0 , fnyq , sl)
+
+    where = request.args.get('where')
+
+    if where == 'signal':
+        for i in range(len(mseed_data)):
+            df_s = mseed_data[i].copy()
+            yf_s = np.fft.fft(df_s.data[:npts]) 
+            y_write_s = dt * np.abs(yf_s)[0:sl] 
+    else:
+        pass
+    
+    
+
+
 
 @app.route('/')
 def index():
