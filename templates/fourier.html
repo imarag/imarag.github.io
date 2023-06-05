@@ -16,37 +16,32 @@
         margin-bottom: 100px;
     }
 
-    #noise-div {
-        transform: translateX(-200px);
-        opacity: 0;
-        transition: all 0.8s;
+  #noise-transitioned-div {
+    transform: translateX(400px);
+    transition: transform 1s, opacity 1s;
+    opacity: 0;
+  }
 
-    }
+  #noise-transitioned-div.active {
+    transform: translateX(0);
+    opacity: 1;
+  }
 
-    #noise-div.active {
-        transform: translateX(0px);
-        opacity: 1;
-    }
+  #graph-section {
+    display: none;
+  }
 
-    #options-menu {
-        transform: translateY(200px);
-        opacity: 0;
-        transition: all 0.8s;
+  #remove-noise-button {
+    display: none;
+  }
 
-    }
+  button {
+    width: 95px;
+  }
 
-    #options-menu.active {
-        transform: translateY(0px);
-        opacity: 1;
-    }
-
-    .hover-image:hover {
-        background-color: rgb(182, 182, 182);
-    }
-
-    
-
-
+  #computeFourierButton {
+    width: 150px;
+  }
 
 
     
@@ -73,100 +68,76 @@
             </div>
         </section>
 
-        <section>
-            <div class="container-lg">
+        <section id="description-section">
+            <div class="container-lg  p-5 rounded fs-4">
+                <p class="text-start">
+                    Upload an MSEED file and compute the Fourier Spectra. You can choose to calculate it on the whole time series
+                    or at a window with a configurable length. This window can be the signal area window and/or the noise area window. If you choose
+                    to calculate both the singnal and noise area fourier spectra, its windows will have the same length. You can configure both the
+                    length of the window, as well as the starting point (left side) of the signal window and the ending point (right side) of the noise
+                    area window.
+                </p>
+            </div>
+        </section>
+        
+        <section id="upload-section">
+            <div class="container-lg  p-5 rounded fs-4">
+                <p class="text-center">Start by <button class="btn btn-success" id="upload-file-button">uploading</button> an <code>mseed</code> file...</p>
+                <input type="file" id="upload-file-input" value="upload-file-input" name="upload-file-input" style="display: none;">
+            </div>
+        </section>
 
-                <div class="bg-dark p-5 mb-5 text-light rounded">
+        <section id="graph-section">
+            <div class="container-lg text-bg-dark rounded p-5">
+                
+                <div id="time-series-graph">
+
+                </div>
+
+                <div id="options-menu" class="mt-3">
+                    <p class="text-start">Signal window left side <span class="badge rounded-pill text-bg-warning" id="signal-left-side-badge">1 sec</span></p>
+                    <input style="width: 100%" type="range" min="0" max="100" value="50" step="1" id="signal-window-left-side-slider">
+                    <p class="text-start mt-3">Window length <span class="badge rounded-pill text-bg-warning" id="window-length-badge">1 sec</span></p>
+                    <input style="width: 100%" type="range" min="0" max="100" value="50" step="1" id="window-length-slider">
+
+                    
+                    <div class="row justify-content-start align-items-center  mt-3">
+                        <div class="col-5">
+                            <p>Use the whole time series as the window</p>
+                        </div>
+                        <div class="col-5">
+                            <button id="whole-signal-button" class="btn btn-secondary">apply</button>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-start align-items-center  mt-3">
+                        <div class="col-5">
+                            <p>Add a noise window</p>
+                        </div>
+                        <div class="col-5">
+                            <button id="add-noise-button" class="btn btn-success">Add +</button>
+                            <button id="remove-noise-button" class="btn btn-danger">Remove</button>
+                        </div>
+                    </div>
+
+                    <div id="noise-transitioned-div">
+                        <p class="text-start">Noise window right side <span class="badge rounded-pill text-bg-warning" id="noise-right-side-badge">1 sec</span></p>
+                        <input style="width:100%" type="range" min="0" max="100" value="50" step="1" id="noise-window-right-side-slider">
+                    </div>
+
                     <div class="row justify-content-center align-items-center text-center">
-                        <div class="col">
-                            <p class="fs-4">Calculate the Fourier Spectra on the whole time series</p>
+                        <div class="col-12">
+                            <button class="btn btn-primary p-3 mt-5" id="computeFourierButton">Compute Fourier</button>
                         </div>
-                        <div class="col">
-                            <p class="fs-4">Calculate the Fourier Spectra between a window</p>
-                        </div>
-                    </div>
-                    <div class="card-group text-dark">
-                        <div class="card">
-                            <button id="whole-signal-button">
-                                <img src="/static/img/fourier-images/whole-signal.png" class="card-img-bottom hover-image" alt="whole signal">
-                            </button>
-                        </div>
-                        <div class="card">
-                            <button id="window-signal-button">
-                                <img src="/static/img/fourier-images/window-signal.png" class="card-img-top hover-image" alt="window signal">
-                            </button>
-                        </div>
-                    </div>
-                    <div id="options-menu" class="mt-5">
-                        <div class="row border border-dark justify-content-center align-items-center text-center">
-                            <div class="col">
-                                <p>Window left side (sec)</p>
-                            </div>
-                            <div class="col">
-                                <input class="rounded" type="number" id="signal-start" value="5">
-                            </div>
-                        </div>
-
-                        <div class="row border border-dark justify-content-center align-items-center text-center">
-                            <div class="col">
-                                <p>window total length (sec)</p>
-                            </div>
-                            <div class="col">
-                                <input class="rounded" type="number" id="window-length" value="5">
-                            </div>
-                        </div>
-
-                        <div class="row border border-dark justify-content-center align-items-center text-center mt-4">
-                            <div class="col">
-                                <input type="checkbox" id="noise-fourier">
-                                <label for="noise-fourier">Compute noise fourier too</label>
-                            </div>
-                            <div class="col" id="noise-div">
-                                <label for="noise-start">Noise right window (sec)</label>
-                                <input class="rounded" type="number" id="noise-start" value="2">
-                            </div>
-                        </div>
-
-                        <div class="row text-center justify-content-center align-items-center mt-5">
-                            <div class="col">
-                                <button class="btn btn-success" id="compute-fourier-button">Compute Fourier</button>
-                            </div>
-                        </div>
-
-
                     </div>
 
                     
+                    
+                    
                 </div>
+                
             </div>
         </section>
-
-        <section>
-            <div class="container-lg">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="time-signal-tab" data-bs-toggle="tab" data-bs-target="#time-signal" type="button" role="tab" aria-controls="time-signal-tab-pane" aria-selected="true">Time signal</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="fourier-spectra-tab" data-bs-toggle="tab" data-bs-target="#fourier-spectra" type="button" role="tab" aria-controls="fourier-spectra-tab-pane" aria-selected="false">Fourier spectra</button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade show active" id="graph-waveform" role="tabpanel" aria-labelledby="time-signal-tab" tabindex="0">
-                        <div class="bg-secondary text-center p-5 rounded">
-                            <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
-                            <p class="display-6 text-dark">Start by <button class="btn btn-primary upload-button" id="upload-button-top">uploading</button>  a record...</p>
-                        </div>
-                    </div>
-                    <div class="tab-pane fade" id="graph-fourier" role="tabpanel" aria-labelledby="fourier-spectra-tab" tabindex="0">
-
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-    </div>
 
 
 

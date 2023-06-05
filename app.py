@@ -41,6 +41,7 @@ def convert_mseed_to_object(stream):
     return traces_data_dict
 
 
+
 @app.route('/upload-mseed-file', methods=['POST'])
 def upload():
 
@@ -181,6 +182,7 @@ def compute_fourier():
 
     mseed_data = read(uploaded_mseed_file_path)
     starttime = mseed_data[0].stats.starttime
+    station = mseed_data[0].stats.station
     total_seconds = mseed_data[0].stats.endtime - starttime
     fs = mseed_data[0].stats["sampling_rate"]
     fnyq = fs / 2
@@ -191,14 +193,82 @@ def compute_fourier():
 
     where = request.args.get('where')
 
-    if where == 'signal':
+    traces_data_dict = {}
+    ydata_dict = {}
+
+    if where == 'whole-signal':
+        
         for i in range(len(mseed_data)):
             df_s = mseed_data[i].copy()
+            channel = df_s.stats.channel
             yf_s = np.fft.fft(df_s.data[:npts]) 
             y_write_s = dt * np.abs(yf_s)[0:sl] 
+            
+            trace_data = {
+                'signal': {
+                    'ydata': y_write_s.tolist(),
+                    'xdata': freq_x.tolist(),
+                    'stats': {
+                        'starttime': starttime.isoformat(), 
+                        'sampling_rate':fs, 
+                        'station':station, 
+                        'channel': channel
+                    }
+                }
+            }
+            traces_data_dict[f'trace-{i}'] = trace_data
+
     else:
-        pass
+        signal_left_side = request.args.get('signal-window-left')
+        noise_right_side = request.args.get('noise-window-right')
+        window_length = request.args.get('window-length')
+
+
+        for i in range(len(mseed_data)):
+            df_s = mseed_data[i].copy()
+            channel = df_s.stats.channel
+            df_s.trim(starttime = starttime + float(signal_left_side), endtime=starttime + float(signal_left_side) + float(window_length))
+            npts = df_s.stats["npts"]
+            sl = int(npts / 2)
+            freq_x = np.linspace(0 , fnyq , sl)
+
+            yf_s = np.fft.fft(df_s.data[:npts]) 
+            y_write_s = dt * np.abs(yf_s)[0:sl]
+
+            if noise_right_side != 'null':
+                df_p = mseed_data[i].copy()
+                df_p.trim(starttime = starttime + float(noise_right_side) - float(window_length), endtime=starttime + float(noise_right_side))
+                yf_p = np.fft.fft(df_p.data[:npts]) 
+                y_write_p = dt * np.abs(yf_p)[0:sl]
+            
+            trace_data = {
+                'signal': {
+                    'ydata': y_write_s.tolist(),
+                    'xdata': freq_x.tolist(),
+                    'stats': {
+                        'starttime': starttime, 
+                        'sampling_rate':fs, 
+                        'station':station, 
+                        'channel': channel
+                    }
+                },
+                'noise': {
+                    'ydata': y_write_p.tolist(),
+                    'xdata': freq_x.tolist(),
+                    'stats': {
+                        'starttime': starttime, 
+                        'sampling_rate':fs, 
+                        'station':station, 
+                        'channel': channel
+                    }
+                }
+            }
+
+            traces_data_dict[f'trace-{i}'] = trace_data
+
+    json_data = jsonify(traces_data_dict)
     
+    return json_data
     
 
 
