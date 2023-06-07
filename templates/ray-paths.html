@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="mb-5">
+
+        <section id="title-section">
+            <div class="bg-light fs-2 p-5">
+                <div class="container-lg">
+                    <p class="display-2 text-center mb-5">Ray paths</p>
+                    <div id="joke-div">
+                        <p class="text-center fs-3 text-muted">Plot tha ray paths between the stations and the earthquakes</p>
+                    </div>
+                    
+                    <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+                </div>
+            </div>
+        </section>
+
+        <section id="description-section">
+            <div class="container-lg  p-5 rounded fs-4">
+                <p class="text-start">
+                    Upload an MSEED file and compute the Fourier Spectra. You can choose to calculate it on the whole time series
+                    or at a window with a configurable length. This window can be the signal area window and/or the noise area window. If you choose
+                    to calculate both the singnal and noise area fourier spectra, its windows will have the same length. You can configure both the
+                    length of the window, as well as the starting point (left side) of the signal window and the ending point (right side) of the noise
+                    area window.
+                </p>
+            </div>
+        </section>
+        
+        <section id="upload-section">
+            
+            <div class="row justify-content-center align-items-center">
+                <div class="col-5">
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Upload stations</label>
+                        <input class="form-control" type="file" id="formFile">
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="mb-3">
+                        <label for="upload-earthquakes" class="file">Upload earthquakes</label>
+                        <input class="form-control" type="file" id="upload-earthquakes">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container-lg">
+                <div id="map" style="height: 580px;">
+    
+                </div>
+            </div>
+        </section>
+
+
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <!-- <script src="/static/js/ray-paths.js"></script> -->
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+   
+}).addTo(map);
+    </script>
+
+      
+      
+      
+      
+      
+
+ 
+
+
+        
+
+{% endblock %}

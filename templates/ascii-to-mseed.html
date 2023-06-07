@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Python obspy
+{% endblock %}
+
+{% block extcss %}
+
+<style>
+    #wave-one-line {
+        position: relative;
+        top: 67px;
+    }
+
+    #title-section {
+        margin-bottom: 100px;
+    }
+
+
+    /* .component {
+        display: inline;
+        width: 100px;
+    }
+
+    .radio-param {
+        width: 200px;
+    } */
+
+    /* #station  {
+        width: 180px;
+    }
+
+    #parameter {
+        width: 150px;
+    }
+
+    #date {
+        width: 150px;
+    }*/
+
+    /* .component {
+        width: 50px;
+        display: inline;
+    }  */
+
+
+    
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="mb-5">
+
+        <section id="title-section">
+            <div class="bg-light fs-2 p-5">
+                <div class="container-lg">
+                    <p class="display-2 text-center mb-5">Convert ASCII to MSEED</p>
+                    <div>
+                        <p class="text-center fs-3 text-muted">Convert raw ASCII data to seismic waveform binary data </p>
+                    </div>
+                    
+                    <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+                </div>
+            </div>
+        </section>
+
+        <section id="description-section">
+            <div class="container-lg  p-5 rounded fs-4">
+                <p class="text-start">
+                    Upload an MSEED file and compute the Fourier Spectra. You can choose to calculate it on the whole time series
+                    or at a window with a configurable length. This window can be the signal area window and/or the noise area window. If you choose
+                    to calculate both the singnal and noise area fourier spectra, its windows will have the same length. You can configure both the
+                    length of the window, as well as the starting point (left side) of the signal window and the ending point (right side) of the noise
+                    area window.
+                </p>
+            </div>
+        </section>
+        
+        <section>
+            <div class="container-lg fs-4">
+
+
+                
+
+                
+
+                <form class="row align-items-center justify-content-between border p-4 mt-5 gy-4"  action="/upload-ascii-file" method="POST" enctype="multipart/form-data">
+                    <label for="upload-file" class="form-label">Upload a file</label>
+                    <input class="form-control" type="file" name="file" id="upload-file" accept=".xlsx, .xls, .csv, .txt, .dat">
+
+                    <div class="col-md-3 col-6 text-center">
+                        <label for="date">starting date:</label>
+                    </div>
+
+                    <div class="col-md-3  col-6 text-center">
+                        <input type="datetime-local" class="form-control" id="date" name="datetime">
+                    </div>
+
+                    <div class="col-md-3 col-6 text-center">
+                        <label for="station" class="d-inline">Station name:</label>
+                    </div>
+
+                    <div class="col-md-3 col-6 text-center">
+                        <input type="text" class="form-control d-inline" id="station" name="station" placeholder="ej. SEIS">
+                    </div>
+
+                    <div class="col-md-3 col-12 text-start text-md-center">
+                        <label for="fs">Input variable:</label>
+                    </div>
+
+                    
+                    <div class="col-md-4 col-6 text-center">
+ 
+                        <div style="width:100%" class="btn-group" role="group" aria-label="Basic radio toggle button group" id="parameter-div">
+                            <input type="radio" class="btn-check radio-param" name="parameter-radio" value="sampling_rate" id="fs" autocomplete="off" checked>
+                            <label class="btn btn-outline-primary" for="fs">sampling rate (Hz)</label>
+                          
+                            <input type="radio" class="btn-check radio-param" name="parameter-radio" value="delta" id="dt" autocomplete="off">
+                            <label class="btn btn-outline-primary" for="dt">Sample distance (sec)</label>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 col-6 text-center">
+                        <input type="number" class="form-control" style="width:100%" id="parameter" name="parameter-value">
+                    </div>
+
+
+                    <div class="col-md-3 col-12 text-start text-md-center">
+                        <label for="fs">Components:</label>
+                    </div>
+
+                    <div class="col-md-3 col-4 text-center">
+                        <input type="text" class="form-control component" id="compo1" name="compo1" placeholder="ej. E">
+                    </div>
+
+                    <div class="col-md-3 col-4 text-center">
+                        <input type="text" class="form-control component" id="compo2" name="compo2" placeholder="ej. N">
+                    </div>
+
+                    <div class="col-md-3 col-4 text-center">
+                        <input type="text" class="form-control component" id="compo3" name="compo3" placeholder="ej. Z">
+                    </div>
+
+
+                    
+                    <div class="col-12 mt-5 text-center">
+                        <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+                    </div>
+                </form>
+
+                
+                
+            </div>
+            
+        </section>
+
+        <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+        <script src="/static/js/ascii-to-mseed.js"></script>
+
+        
+
+{% endblock %}

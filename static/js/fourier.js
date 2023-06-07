@@ -12,8 +12,29 @@ let windowLengthSlider = document.querySelector("#window-length-slider");
 let signalLeftSideBadge = document.querySelector("#signal-left-side-badge");
 let windowLengthBadge = document.querySelector("#window-length-badge");
 let noiseRightSideBadge = document.querySelector("#noise-right-side-badge");
-
 let noiseTransitionedDiv = document.querySelector("#noise-transitioned-div");
+let computeFourierButton = document.querySelector("#computeFourierButton");
+let timeSeriesTab = document.querySelector("#time-series-tab");
+let fourierTab = document.querySelector("#fourier-tab");
+let optionsMenu = document.querySelector("#options-menu");
+let spinnerDiv = document.querySelector("#spinner-div");
+let alertPlaceholder = document.querySelector('#liveAlertPlaceholder')
+
+
+spinnerDiv.style.display = 'none';
+
+
+const alert = (message, type) => {
+  const wrapper = document.createElement('div')
+  wrapper.innerHTML = [
+    `<div class="alert alert-${type} alert-dismissible" role="alert">`,
+    `   <div>${message}</div>`,
+    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+    '</div>'
+  ].join('')
+
+  alertPlaceholder.append(wrapper)
+}
 
 let signalWindowColor = "rgba(255, 0, 0, 0.3)";
 let noiseWindowColor = "rgba(4, 0, 241, 0.3)";
@@ -28,6 +49,21 @@ let maxYValueTotal;
 let totalTraces;
 
 let noiseWindowAdded = false;
+
+
+computeFourierButton.addEventListener('click', () => {
+    
+    fourierTab.disabled = false;
+    calculateFourier();
+});
+
+timeSeriesTab.addEventListener('click', () => {
+    optionsMenu.style.display = 'block';
+})
+
+fourierTab.addEventListener('click', () => {
+    optionsMenu.style.display = 'none';
+})
 
 
 
@@ -51,7 +87,7 @@ uploadFileInput.addEventListener('change', function(event) {
 
     formData.append('file', mseedFile);
     formData.append('view-page', 'fourier');
-
+    spinnerDiv.style.display = 'block';
     fetch('/upload-mseed-file', {
         method: 'POST',
         body: formData
@@ -71,10 +107,11 @@ uploadFileInput.addEventListener('change', function(event) {
         if (mseedData['warning-message']) {
             alert('Warning: ' + mseedData['warning-message']);
         }
-     
+        
         let convertedMseedData = prepareTracesList(mseedData);
         initializeParameters();
         createNewPlot(convertedMseedData);
+        spinnerDiv.style.display = 'none';
     })
     .catch(error => {
         // Handle any errors during the upload process
@@ -121,7 +158,7 @@ function initializeParameters() {
 }
 
 
-function createNewPlot(tracesList, type) {
+function createNewPlot(tracesList) {
     let subplotIndex = 1;
     totalTraces = tracesList.length;
     let minMaxXValues = [];
@@ -339,6 +376,116 @@ function prepareTracesList(mseedDataObject) {
 
 
 
+function calculateFourier() {
+    let fourierFetchURL = `/compute-fourier?signal-window-left-side=${signalWindowLeftSideSlider.value}&window-length=${windowLengthSlider.value}&noise-selected=${noiseWindowAdded}&noise-window-right-side=${noiseWindowRightSideSlider.value}`;
+    fetch(fourierFetchURL)
+    .then(response => { 
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            return response.json().then(data => {
+                alert(data['error-message'], 'danger')
+                throw new Error(data['error-message']);
+            })
+        }
+    })
+    .then(fourierData => {
+        alert('The Fourier Spectra has succesfully been calculated. Check the "Fourier Spectra" tab above. ', 'success')
+        plotFourierData(fourierData)
+
+
+    })
+    .catch(error => {
+      // Handle any errors during the upload process
+      console.error('Error uploading MSeed file:', error);
+    });
+}
+
+function plotFourierData(fourierData) {
+
+    let dataList = [];
+    let metrSignalNoise = 1;
+    let colors = ['#5E62FF', '#B9BBFF', '#FFF532', '#FDF89E', '#FE4252', '#FBA3AA']
+    let totalTracesFourier = 0;
+    let metrColors = 0;
+
+    for (tr in fourierData) {
+        let trace_dict = fourierData[tr];
+        totalTracesFourier += 1;
+        for (signal_noise_key in trace_dict) {
+             
+            dataList.push(
+                { 
+                    x: trace_dict[signal_noise_key]['xdata'], 
+                    y: trace_dict[signal_noise_key]['ydata'], 
+                    type: 'scatter', 
+                    mode: 'lines', 
+                    name: `${signal_noise_key}, Channel: ${trace_dict[signal_noise_key]['stats']['channel']}` , 
+                    xaxis:`x${metrSignalNoise}`, 
+                    yaxis: `y${metrSignalNoise}`,
+                    line: {color: colors[metrColors], width: 1}
+                }
+            );
+            metrColors +=1;
+        }
+        metrSignalNoise += 1;
+    };
+
+    let configFourier = {
+        scrollZoom: true,
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
+    };
+    
+    layoutFourier = {
+        title: '',
+        margin: {
+            l: 0, // left margin
+            r: 0, // right margin
+            t: 0, // top margin
+            b: 0  // bottom margin
+        },
+        plot_bgcolor: '#212529',
+        paper_bgcolor: '#212529',
+        height: 500,
+        grid: {rows: 3, columns: 1, pattern: 'independent'},
+        shapes: [ ],
+        annotations: [],
+        legend: {
+            orientation: 'h', 
+            x: 0.5,           
+            y: 1.15,
+            xanchor: 'center',
+            font: {
+            size: 20 // Adjust the font size as desired
+            },
+        }
+    }; 
+
+    for (let ind=1; ind<=totalTracesFourier; ind++) {
+
+        layoutFourier[`xaxis${ind}`] = {
+            type: 'log',
+            title: 'Frequency (Hz)',
+        }
+
+        layoutFourier[`yaxis${ind}`] = {
+            type: 'log',
+            title: ' ',
+        }
+    }
+
+
+    
+
+    Plotly.newPlot('fourier-graph', dataList, layoutFourier, configFourier);
+}
+
+
+
+
 
 
 
@@ -507,35 +654,4 @@ function prepareTracesList(mseedDataObject) {
     
 // }
 
-// function calculateFourier(URLFetch) {
-    
-//     fetch(URLFetch)
-//     .then(response => { 
-//         if (response.ok) {
-//             return response.json();
-//         }
-//         else {
-//             return response.json().then(data => {
-//                 alert('Error: ' + data['error-message']);
-//                 throw new Error(data['error-message']);
-//             })
-//         }
-//     })
-//     .then(fourierData => {
-//         if (fourierData['warning-message']) {
-//             alert('Warning: ' + fourierData['warning-message']);
-//         }
-        
-//         let convertedFourierData = prepareTracesListFourier(fourierData);
-       
-//         initializeParametersFourier();
-//         createNewPlot(convertedFourierData, 'nadaa');
-//     })
-//     .catch(error => {
-//       // Handle any errors during the upload process
-//       console.error('Error uploading MSeed file:', error);
-//     });
-    
-
-// }
 

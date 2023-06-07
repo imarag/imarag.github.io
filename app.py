@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory
+from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory, send_file
 import os
 from flask_session import Session
 from flask_compress import Compress
@@ -9,6 +9,7 @@ from obspy.core.stream import Stream
 import numpy as np
 import gzip
 import io
+import pandas as pd
 
 app = Flask(__name__, static_folder="static")
 app.secret_key = '12345asdfg6789lkj'
@@ -176,100 +177,137 @@ def process_signal():
     
     return json_data
 
-
 @app.route('/compute-fourier', methods=['GET'])
 def compute_fourier():
 
     mseed_data = read(uploaded_mseed_file_path)
-    starttime = mseed_data[0].stats.starttime
-    station = mseed_data[0].stats.station
-    total_seconds = mseed_data[0].stats.endtime - starttime
-    fs = mseed_data[0].stats["sampling_rate"]
+    first_trace = mseed_data[0]
+    starttime = first_trace.stats.starttime
+    total_duration = first_trace.stats.endtime - first_trace.stats.starttime
+    station = first_trace.stats.station
+    fs = first_trace.stats["sampling_rate"]
     fnyq = fs / 2
-    dt = mseed_data[0].stats["delta"]
-    npts = mseed_data[0].stats["npts"]
-    sl = int(npts / 2)
-    freq_x = np.linspace(0 , fnyq , sl)
+    dt = first_trace.stats["delta"]
 
-    where = request.args.get('where')
+    signal_window_left_side = request.args.get('signal-window-left-side')
+    noise_window_right_side = request.args.get('noise-window-right-side')
+    window_length = request.args.get('window-length')
+    noise_selected = request.args.get('noise-selected')
+
+    error_message = None
+
+    if float(signal_window_left_side) + float(window_length) >= total_duration:
+        error_message = 'The signal window must ends before the time series graph ends! Consider reducing the window side or moving the signal left side to the left'
+    elif float(signal_window_left_side) < 0:
+        error_message = 'The signal window must start after the time series graph begins! Consider moving the signal left side to the right, inside the graph area'
+    elif noise_selected == 'true' and float(noise_window_right_side) > total_duration:
+        error_message = 'The noise window must end before the time series graph ends! Consider moving the noise right side to the left'
+    elif noise_selected == 'true' and float(noise_window_right_side) - float(window_length) < 0:
+        error_message = 'The noise window must start after the time series graph begins! Consider reducing the window side or moving the noise right side to the right'
+
+    if error_message:
+        response = jsonify({'error-message': error_message})
+        response.status_code = 400
+        return response
 
     traces_data_dict = {}
-    ydata_dict = {}
 
-    if where == 'whole-signal':
+    for i in range(len(mseed_data)):
+        trace_label = f'trace-{i}'
+        traces_data_dict[trace_label] = {}
+        df_s = mseed_data[i].copy()
+        channel = df_s.stats.channel
+
+        df_s.trim(starttime = starttime + float(signal_window_left_side), endtime=starttime + float(signal_window_left_side) + float(window_length))
+        npts = df_s.stats["npts"]
+        sl = int(npts / 2)
+        freq_x = np.linspace(0 , fnyq , sl)
+        yf_s = np.fft.fft(df_s.data[:npts]) 
+        y_write_s = dt * np.abs(yf_s)[0:sl]
+
+        traces_data_dict[trace_label]['signal'] = {
+            'ydata': y_write_s.tolist(),
+            'xdata': freq_x.tolist(),
+            'stats': {
+                'starttime': starttime.isoformat(), 
+                'sampling_rate':fs, 
+                'station':station, 
+                'channel': channel
+            }
+        }
+
+        if noise_selected != 'false':
+            df_p = mseed_data[i].copy()
+            df_p.trim(starttime = starttime + float(noise_window_right_side) - float(window_length), endtime=starttime + float(noise_window_right_side))
+            yf_p = np.fft.fft(df_p.data[:npts]) 
+            y_write_p = dt * np.abs(yf_p)[0:sl]
+
+            traces_data_dict[trace_label]['noise'] = {
+                'ydata': y_write_p.tolist(),
+                'xdata': freq_x.tolist(),
+                'stats': {
+                    'starttime': starttime.isoformat(), 
+                    'sampling_rate':fs, 
+                    'station':station, 
+                    'channel': channel
+                }
+            }
         
-        for i in range(len(mseed_data)):
-            df_s = mseed_data[i].copy()
-            channel = df_s.stats.channel
-            yf_s = np.fft.fft(df_s.data[:npts]) 
-            y_write_s = dt * np.abs(yf_s)[0:sl] 
-            
-            trace_data = {
-                'signal': {
-                    'ydata': y_write_s.tolist(),
-                    'xdata': freq_x.tolist(),
-                    'stats': {
-                        'starttime': starttime.isoformat(), 
-                        'sampling_rate':fs, 
-                        'station':station, 
-                        'channel': channel
-                    }
-                }
-            }
-            traces_data_dict[f'trace-{i}'] = trace_data
-
-    else:
-        signal_left_side = request.args.get('signal-window-left')
-        noise_right_side = request.args.get('noise-window-right')
-        window_length = request.args.get('window-length')
-
-
-        for i in range(len(mseed_data)):
-            df_s = mseed_data[i].copy()
-            channel = df_s.stats.channel
-            df_s.trim(starttime = starttime + float(signal_left_side), endtime=starttime + float(signal_left_side) + float(window_length))
-            npts = df_s.stats["npts"]
-            sl = int(npts / 2)
-            freq_x = np.linspace(0 , fnyq , sl)
-
-            yf_s = np.fft.fft(df_s.data[:npts]) 
-            y_write_s = dt * np.abs(yf_s)[0:sl]
-
-            if noise_right_side != 'null':
-                df_p = mseed_data[i].copy()
-                df_p.trim(starttime = starttime + float(noise_right_side) - float(window_length), endtime=starttime + float(noise_right_side))
-                yf_p = np.fft.fft(df_p.data[:npts]) 
-                y_write_p = dt * np.abs(yf_p)[0:sl]
-            
-            trace_data = {
-                'signal': {
-                    'ydata': y_write_s.tolist(),
-                    'xdata': freq_x.tolist(),
-                    'stats': {
-                        'starttime': starttime, 
-                        'sampling_rate':fs, 
-                        'station':station, 
-                        'channel': channel
-                    }
-                },
-                'noise': {
-                    'ydata': y_write_p.tolist(),
-                    'xdata': freq_x.tolist(),
-                    'stats': {
-                        'starttime': starttime, 
-                        'sampling_rate':fs, 
-                        'station':station, 
-                        'channel': channel
-                    }
-                }
-            }
-
-            traces_data_dict[f'trace-{i}'] = trace_data
 
     json_data = jsonify(traces_data_dict)
     
     return json_data
     
+
+@app.route('/upload-ascii-file', methods=['POST'])
+def upload_file():
+    uploaded_file = request.files.get('file')
+    
+    if not uploaded_file:
+        return 'No file uploaded'
+
+    station = request.form.get('station')
+    parameterRadioOn = request.form.get('parameter-radio')
+    parameterValue = request.form.get('parameter-value')
+    compo1 = request.form.get('compo1')
+    compo2 = request.form.get('compo2')
+    compo3 = request.form.get('compo3')
+    datetime = request.form.get('datetime')
+    
+
+    compos = [c for c in [compo1, compo2, compo3] if c]
+
+    filename, file_extension = os.path.splitext(uploaded_file.filename)
+    file_extension = file_extension.lower()
+    
+    if file_extension == '.xlsx' or file_extension == '.xls':
+        df = pd.read_excel(uploaded_file)
+    elif file_extension == '.csv':
+        df = pd.read_csv(uploaded_file)
+    else:
+        return 'Unsupported file type'
+    df.columns = compos
+    lt_compos = []
+    for col in df.columns:
+        trace_data = df[col].astype(int).to_numpy().astype(np.int32)
+        trace = Trace(
+            data=trace_data, 
+            header={
+                'station': station, 
+                parameterRadioOn: float(parameterValue), 
+                'npts': len(trace_data), 
+                'channel': col,
+                'starttime': UTCDateTime(datetime)
+                })
+        lt_compos.append(trace)
+    
+    st = Stream(lt_compos)
+
+    st.write('stream.mseed', format='MSEED')
+
+    mime_type = 'application/vnd.fdsn.mseed'
+
+    return send_file(st, as_attachment=True,  mimetype=mime_type, download_name='stream.mseed')
 
 
 
