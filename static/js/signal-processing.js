@@ -2,6 +2,7 @@
 let initialWaveformButton = document.querySelector("#initial-waveform-button");
 let detrendButton = document.querySelector("#detrend-button");
 let trimButton = document.querySelector("#trim-button");
+let trimOption = document.querySelector("#trim-option");
 let taperButton = document.querySelector("#taper-button");
 let detrendType = document.querySelector("#detrend-type");
 let taperType = document.querySelector("#taper-type");
@@ -13,8 +14,11 @@ let uploadButtonTop = document.querySelector("#upload-button-top");
 let uploadButtonBottom = document.querySelector("#upload-button-bottom");
 let uploadInput = document.querySelector('#upload-input');
 let spinnerDiv = document.querySelector("#spinner-div");
+
 let config;
 let layout;
+
+
 
 let listDisabled = [
     detrendButton, taperButton, trimButton

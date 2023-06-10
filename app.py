@@ -15,7 +15,7 @@ app = Flask(__name__, static_folder="static")
 app.secret_key = '12345asdfg6789lkj'
 
 uploaded_mseed_file_path = os.path.join(app.root_path, "static-data", "uploaded-mseed-file.mseed")
-
+test_mseed_file_path = os.path.join(app.root_path, "static-data", "test.mseed")
 
 def convert_mseed_to_object(stream):
     traces_data_dict = {}
@@ -40,6 +40,32 @@ def convert_mseed_to_object(stream):
         traces_data_dict[f'trace-{n}'] = trace_data
    
     return traces_data_dict
+
+
+
+@app.route('/download', methods=['POST'])
+def download():
+    # Get the JSON data from the request
+    data = request.json
+
+    df = pd.DataFrame()
+    df['x'] = data[0]['x']
+    for tr in data:
+        df[tr['name']] = tr['y']
+    
+    # Create an Excel file from the DataFrame
+    excel_file = io.BytesIO()
+    with pd.ExcelWriter(excel_file) as writer:
+        df.to_excel(writer, index=False)
+    excel_file.seek(0)
+
+    # Return the Excel file as a Blob
+    return send_file(
+        excel_file,
+        as_attachment=True,
+        download_name='graph_data.xlsx',
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
 
 
 
@@ -95,7 +121,14 @@ def upload():
     return json_data
 
 
+@app.route("/load-test-mseed-file", methods=["GET"])
+def load_test_mseed_file():
+    stream = read(test_mseed_file_path)
+    stream.write(uploaded_mseed_file_path)
+    converted_stream = convert_mseed_to_object(stream)
 
+    json_data = jsonify(converted_stream)
+    return json_data
 
 
 @app.route("/apply-filter", methods=["GET"])

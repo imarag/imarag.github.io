@@ -35,12 +35,20 @@
     display: none;
   }
 
-  button {
+  /* button {
     width: 95px;
-  }
+  } */
 
   #computeFourierButton {
     width: 150px;
+  }
+
+  #upload-section-div {
+    padding: 200px 100px;
+  }
+
+  .button-same-width {
+    width: 100px;
   }
 
 
@@ -59,8 +67,7 @@
                 <div class="container-lg">
                     <p class="display-2 text-center mb-5">Fourier Spectra</p>
                     <div id="joke-div">
-                        <p class="text-center fs-3">A funny fourier joke</p>
-                        <p class="text-center fs-3 text-muted">Because S is always late!</p>
+                        <p class="text-center fs-3 text-muted">Calculate the Fourier spectra on a window</p>
                     </div>
                     
                     <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
@@ -68,7 +75,7 @@
             </div>
         </section>
 
-        <section id="description-section">
+        <section id="description-section" class="">
             <div class="container-lg  p-5 rounded fs-4">
                 <p class="text-start">
                     Upload an MSEED file and compute the Fourier Spectra. You can choose to calculate it on the whole time series
@@ -81,9 +88,11 @@
         </section>
         
         <section id="upload-section">
-            <div class="container-lg  p-5 rounded fs-4">
-                <p class="text-center">Start by <button class="btn btn-success" id="upload-file-button">uploading</button> an <code>mseed</code> file...</p>
+            <div class="container-lg rounded fs-4 bg-secondary" id="upload-section-div">
+                <p class="text-center fs-2">Start by <button class="btn btn-dark btn-lg" id="upload-file-button">uploading</button> an mseed file...</p>
                 <input type="file" id="upload-file-input" value="upload-file-input" name="upload-file-input" style="display: none;">
+                <p class="text-center fs-5 mt-5">or  <button class="btn btn-dark btn-sm" id="load-button">load</button> one to test the program.</p>
+                
             </div>
         </section>
 
@@ -100,6 +109,9 @@
                     <li class="nav-item" role="presentation">
                       <button class="nav-link"        id="fourier-tab"     data-bs-toggle="tab" data-bs-target="#fourier-tab-pane"     type="button" role="tab" aria-controls="fourier-tab-pane"     aria-selected="false" disabled>Fourier Spectra</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"        id="upload-tab"     data-bs-toggle="tab" data-bs-target="#upload-tab-pane"     type="button" role="tab" aria-controls="upload-tab-pane"     aria-selected="false">Upload</button>
+                      </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="time-series-tab-pane" role="tabpanel" aria-labelledby="time-series-tab" tabindex="0">
@@ -108,8 +120,24 @@
                         </div>
                     </div>
                     <div class="tab-pane fade"             id="fourier-tab-pane"     role="tabpanel" aria-labelledby="fourier-tab"     tabindex="1">
-                        <div id="fourier-graph">
+                        <div class="row justify-content-center align-items-center">
+                            <div class="col">
+                                <div id="fourier-graph">
 
+                                </div>
+                            </div>
+                            <div class="col text-center">
+                                <p class="display-6">Download:</p>
+                                <button class="btn btn-lg btn-primary d-inline" id="download-graph-button">Graph</button>
+                                <button class="btn btn-lg btn-danger d-inline" id="download-data-button">Data</button>
+                               
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade"             id="upload-tab-pane"     role="tabpanel" aria-labelledby="upload-tab"     tabindex="2">
+                        <div>
+                            <p class="text-center m-5"><button class="btn btn-success" id="upload-another-file-button">Upload</button> another file...</p>
+                            <input type="file" id="upload-another-file-input" value="upload-file-input" name="upload-file-input" style="display: none;">
                         </div>
                     </div>
                 </div>
@@ -132,7 +160,7 @@
                             <p>Use the whole time series as the window</p>
                         </div>
                         <div class="col-5">
-                            <button id="whole-signal-button" class="btn btn-secondary">apply</button>
+                            <button id="whole-signal-button" class="btn btn-secondary button-same-width">apply</button>
                         </div>
                     </div>
 
@@ -141,8 +169,8 @@
                             <p>Add a noise window</p>
                         </div>
                         <div class="col-5">
-                            <button id="add-noise-button" class="btn btn-success">Add +</button>
-                            <button id="remove-noise-button" class="btn btn-danger">Remove</button>
+                            <button id="add-noise-button" class="btn btn-success button-same-width">Add +</button>
+                            <button id="remove-noise-button" class="btn btn-danger button-same-width">Remove</button>
                         </div>
                     </div>
 

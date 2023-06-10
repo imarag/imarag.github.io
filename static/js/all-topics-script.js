@@ -2,6 +2,7 @@
 let mainElement = document.querySelector('#main-content');
 let searchEntry = document.querySelector('#search');
 let searchButton = document.querySelector('#search-bt');
+
 let allTopicsObj = {};
 let allExistingTopics = {};
 let topicNotFound = null;

@@ -4,158 +4,174 @@
     Python obspy
 {% endblock %}
 
+{% block extcss %}
+
+<link rel="stylesheet" href="/static/css/obspy-style.css">
+{% endblock %}
+
 {% block content %}
 
-    <div class="container-lg ">
+    <div>
 
-        <section>
-            <div class="row justify-content-center align-items-center">
-                    <h1 class="main-block__title main-block__title--large">
-                        <a href="https://docs.obspy.org/" class="main-block__link">
-                            <img src="/static/img/obspy-images/obspy-image-no-bg.png" alt="mseed record ASCII file" class="main-block__img main-block__img--small">
+        <section class="bg-light">
+            <div class="container-lg py-3">
+                <div class="row justify-content-center align-items-center  pt-5 mb-4 ">
+                    <div class="col-lg-2 col-3 col-md-3">
+                        <a href="https://docs.obspy.org/">
+                            <img src="/static/img/obspy-images/obspy-image-no-bg.png" alt="mseed record ASCII file" class="img-fluid">
                         </a>
-                        What is Obspy ?
-                    </h1>
-            </div>
+                    </div>
+                    <div class="col-lg-9 col-6 col-md-9">
+                        <p class="display-1">What is Obspy ?</p>
+                    </div>
+                        
+                </div>
+
+                <div class="fs-2  lead">
+                    <p>Obspy is a Python library for seismological data processing. It provides many seismological signal processing functions as well as date and time manipulation.</p>
+                </div>
 
 
-            <div class="main-block__intro-div">
-                <p>Obspy is a Python library for seismological data processing. It provides many seismological signal processing functions as well as date and time manipulation.</p>
-            </div>
+                
 
-            <div class="main-block__badges-div">
-                <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html"><span class="main-block__badges">Stream</span></a>
-                <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html"><span class="main-block__badges">Trace</span></a>
-                <a href="https://docs.obspy.org/tutorial/code_snippets/utc_date_time.html"><span class="main-block__badges">UTCDateTime</span></a>
-                <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.read.html"><span class="main-block__badges">read</span></a>
-                <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Stats.html"><span class="main-block__badges">stats</span></a>
+                <div class="text-center fs-5 my-5" id="badge-container">
+                    <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html"><span class="badge rounded-pill text-bg-dark">Stream</span></a>
+                    <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html"><span class="badge rounded-pill text-bg-dark">Trace</span></a>
+                    <a href="https://docs.obspy.org/tutorial/code_snippets/utc_date_time.html"><span class="badge rounded-pill text-bg-dark">filter</span></a>
+                    <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.read.html"><span class="badge rounded-pill text-bg-dark">read</span></a>
+                    <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Stats.html"><span class="badge rounded-pill text-bg-dark">stats</span></a>
+                </div>
             </div>
-            <hr>
+            
         </section>
                 
         <section>
 
+            <div class="container-lg py-3 lead fs-4">
+                <p class="display-5 text-center my-5">Basic structure</p>
 
-            <p class="main-block__title main-block__title--medium">Basic structure</p>
+                <p>
+                    The main structure of the Obspy library consists of the <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" class="main-block__link">Trace</a> and the <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" class="main-block__link">Stream</a> objects.
+                    The Stream object contains one or more trace objects. The trace is in a sense, a seismic record or trace. Every Trace has the <kbd>.data</kbd> property that is the data of the record in <kbd>ndarray</kbd> and the <kbd>.stats</kbd> property that points to a 
+                    dict-like object with name and value pairs of metadata information (eg. station, channel, sampling-rate). In addition, a Trace object contains some methods to manipulate the record. Some examples of these methods include the filtering of the data in a specific frequency range, using the <kbd>.filter()</kbd> method and the 
+                    splitting of the data array into a specific range utilizing the <kbd>.trim()</kbd> method. Last but not least, you can use the <kbd>obspy.core.read</kbd> command to read any seismological file type.
+                </p>
 
-            <p>
-                The main structure of the Obspy library consists of the <a href="https://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" class="main-block__link">Trace</a> and the <a href="https://docs.obspy.org/packages/autogen/obspy.core.stream.Stream.html#obspy.core.stream.Stream" class="main-block__link">Stream</a> objects.
-                The <span class="main-block__font-code">Stream</span> object contains one or more <span class="main-block__font-code">trace</span> objects. The <span class="main-block__font-code">trace</span> is in a sense, a seismic record or trace. Every <span class="main-block__font-code">Trace</span> has the <span class="main-block__font-code">.data</span> property that is the data of the record in <span class="main-block__font-code">ndarray</span> and the <span class="main-block__font-code">.stats</span> property that points to a 
-                dict-like object with name and value pairs of metadata information (eg. station, channel, sampling-rate). In addition, a <span class="main-block__font-code">trace</span> object contains some methods to manipulate the record. Some examples of these methods include the filtering of the data in a specific frequency range, using the <span class="main-block__font-code">.filter()</span> method and the 
-                splitting of the data array into a specific range utilizing the <span class="main-block__font-code">.trim()</span> method. Last but not least, you can use the <span class="main-block__font-code">obspy.core.read</span> command to read any seismological file type.
-            </p>
+                <img src="/static/img/obspy-images/obspy-structure.png" alt="mseed record ASCII file" class="img-fluid my-5">
 
-            <img src="/static/img/obspy-images/obspy-structure.png" alt="mseed record ASCII file" class="main-block__img main-block__img--large">
+                <p>First let's import the necessary libraries:</p>
 
-            <p>First let's import the necessary libraries:</p>
+                <div class="input-code-block">
+                    <pre><code><span class="python-color1">from</span> <span class="python-color2">obspy.core</span> <span class="python-color1">import</span> read, UTCDatetime
+                        <span class="python-color1">from</span> <span class="python-color2">obspy.core.stream</span> <span class="python-color1">import</span> Stream
+                        <span class="python-color1">from</span> <span class="python-color2">obspy.core.trace</span> <span class="python-color1">import</span> Trace
+                        <span class="python-color1">from</span> <span class="python-color2">obspy.core</span> <span class="python-color1">import</span> Stream
+                        <span class="python-color1">import</span>  <span class="python-color2">matplotlib.pyplot</span> as <span class="python-color2">plt</span>
+                        <span class="python-color1">import</span>  <span class="python-color2">numpy</span> as <span class="python-color2">np</span></code></pre>
+                </div>
 
-            <div class="main-block__input-code-block">
-                <span>from obspy.core import read, UTCDatetime</span>
-                <span>from obspy.core.stream import Stream</span>
-                <span>from obspy.core.trace import Trace</span>
-                <span>from obspy.core import Stream</span>
-                <span>import matplotlib.pyplot as plt</span>
-                <span>import numpy as np</span>
-            </div>
+                <p>Next, import a seismogram into a stream object, using the <kbd>read()</kbd> method and get one of its traces:</p>
+                
+                <div class="input-code-block">
+                    <pre><code><span class="comment"># read a stream that contains just one trace</span>
+                        singlechannel-stream = <span class="python-color1">read</span>('https://examples.obspy.org/COP.BHZ.DK.2009.050')
+                        <span class="python-color1">print</span>(singlechannel-stream)
+                        <span class="python-color1">print</span>()
+                        <span class="comment"># get the first and only trace of the stream</span>
+                        singlechannel-trace = stream[0]
+                        <span class="python-color1">print</span>(singlechannel-trace.data), <span class="python-color1">type</span>(singlechannel-trace.data)</code></pre>
+                </div>
 
-            <p>Next, import a seismogram into a <span class="main-block__font-code">stream</span> object, using the <span class="main-block__font-code">read()</span> method and get one of its traces:</p>
+                <div class="output-code-block">
+                    <pre><code>1 Trace(s) in Stream:
+                    DK.COP..BHZ | 2009-02-19T00:00:00.025100Z - 2009-02-19T23:59:59.975100Z | 20.0 Hz, 1728000 samples</pre></code>
+                </div>
 
-            <div class="main-block__input-code-block">
-                <span># read a stream that contains just one trace </span>
-                <span>singlechannel-stream = read('https://examples.obspy.org/COP.BHZ.DK.2009.050')</span>
-                <span>print(singlechannel-stream)</span>
-                <span>print()</span>
-                <span># get the first and only trace of the stream</span>
-                <span>singlechannel-trace = stream[0]</span>
-                <span>print(singlechannel-trace.data, type(singlechannel-trace.data))</span>
-            </div>
+                <p>Then get the data and the metadata of the trace using the <kbd>.data</kbd> and the <kbd>.stats</kbd> attributes respectively:</p>
 
-            <div class="main-block__output-code-block">
-                1 Trace(s) in Stream:
-                DK.COP..BHZ | 2009-02-19T00:00:00.025100Z - 2009-02-19T23:59:59.975100Z | 20.0 Hz, 1728000 samples
-            </div>
+                <div class="input-code-block">
+                    <pre><code><span class="comment"># print the data of the trace</span>
+                        singlechannel-stream = <span class="python-color1">read</span>('https://examples.obspy.org/COP.BHZ.DK.2009.050')
+                        <span class="python-color1">print</span>(singlechannel-trace.data)
+                        <span class="python-color1">print</span>()
+                        <span class="comment"># print its metadata</span>
+                        singlechannel_trace = stream[0]
+                        <span class="python-color1">print</span>(singlechannel_trace.stats)</code></pre>
+                </div>
 
-            <p>Then get the data and the metadata of the trace using the <span class="main-block__font-code">.data</span> and the <span class="main-block__font-code">.stats</span> attributes respectively:</p>
+                <div class="output-code-block">
+                    <pre><code>[-351 -316 -550 ...  -95  -58  -38] &ltclass 'numpy.ndarray'&gt
+                        
+                        network: DK
+                        station: COP
+                        location:
+                        channel: BHZ
+                        starttime: 2009-02-19T00:00:00.025100Z
+                        endtime: 2009-02-19T23:59:59.975100Z
+                        sampling-rate: 20.0
+                        delta: 0.05
+                        npts: 1728000
+                        calib: 1.0
+                        -format: MSEED
+                        mseed: AttribDict({'dataquality': 'D', 'number-of-records': 552, 'encoding': 'STEIM2', 'byteorder': '>', 'record-length': 4096, 'filesize': 2260992})</pre></code>
+                </div>
 
-            <div class="main-block__input-code-block">
-                <span># print the data of the trace</span>
-                <span>print(singlechannel-trace.data)</span>
-                <span>print()</span>
-                <span># print its metadata</span>
-                <span>print(singlechannel-trace.stats)</span>
-            </div>
 
-            <div class="main-block__output-code-block">
-                    [-351 -316 -550 ...  -95  -58  -38] &ltclass 'numpy.ndarray'&gt
-                    
-                    network: DK
-                    station: COP
-                    location:
-                    channel: BHZ
-                    starttime: 2009-02-19T00:00:00.025100Z
-                    endtime: 2009-02-19T23:59:59.975100Z
-                    sampling-rate: 20.0
-                    delta: 0.05
-                    npts: 1728000
-                    calib: 1.0
-                    -format: MSEED
-                    mseed: AttribDict({'dataquality': 'D', 'number-of-records': 552, 'encoding': 'STEIM2', 'byteorder': '>', 'record-length': 4096, 'filesize': 2260992})
-            </div>
+                <p>The  <kbd>starttime</kbd> and <kbd>endtime</kbd> metadata of the Trace, is a special object in Obspy. It is a <kbd>UTCDateTime</kbd> object. You can perform addition, subtraction and extract multiple attributes from this object using the dot notation. Check the following examples:</span></p>
 
-            <p>The <span class="main-block__font-code">starttime</span> and <span class="main-block__font-code">endtime</span> metadata of the <span class="main-block__font-code">trace</span> object, is a special object in Obspy. It is a <span class="main-block__font-code">UTCDateTime</span> object. You can perform addition, subtraction and extract multiple attributes from this object using the dot notation. Check the following examples:</span></p>
+                <div class="input-code-block">
+                    <pre><code><span class="comment"># create a UTCDateTime object</span>
+                        dt = <span class="python-color1">UTCDateTime</span>("2012-09-07T12:15:00")
+                        <span class="python-color1">print</span>(dt, type(dt))
+                        <span class="comment"># add 20 seconds</span>
+                        dt += 20
+                        <span class="python-color1">print</span>(dt)
+                        <span class="python-color1">print</span>()
+                        <span class="comment"># get some datetime attributes</span>
+                        <span class="python-color1">print</span>("dt.year      -> ", dt.year)
+                        <span class="python-color1">print</span>("dt.month     -> ", dt.month)
+                        <span class="python-color1">print</span>("dt.day       -> ", dt.day)
+                        <span class="python-color1">print</span>("dt.hour      -> ", dt.hour)
+                        <span class="python-color1">print</span>("dt.minute    -> ", dt.minute)
+                        <span class="python-color1">print</span>("dt.second    -> ", dt.second)
+                        <span class="python-color1">print</span>("dt.timestamp -> ", dt.timestamn>
+                        <span class="python-color1">print</span>("dt.weekday   -> ", dt.weekday)</pre></code>
+                </div>
 
-            <div class="main-block__input-code-block">
-                <span># create a UTCDateTime object</span>
-                <span>dt = UTCDateTime("2012-09-07T12:15:00")</span>
-                <span>print(dt, type(dt))</span>
-                <span># add 20 seconds</span>
-                <span>dt += 20</span>
-                <span>print(dt)</span>
-                <span>print()</span>
 
-                <span># get some datetime attributes</span>
-                <span>print("dt.year      -> ", dt.year)</span>
-                <span>print("dt.month     -> ", dt.month)</span>
-                <span>print("dt.day       -> ", dt.day)</span>
-                <span>print("dt.hour      -> ", dt.hour)</span>
-                <span>print("dt.minute    -> ", dt.minute)</span>
-                <span>print("dt.second    -> ", dt.second)</span>
-                <span>print("dt.timestamp -> ", dt.timestamp)</span>
-                <span>print("dt.weekday   -> ", dt.weekday)</span>
-            </div>
+                <div class="output-code-block">
+                    <pre><code>2012-09-07T12:15:00.000000Z &ltclass 'obspy.core.utcdatetime.UTCDateTime'>
 
-            <div class="main-block__output-code-block">
-                2012-09-07T12:15:00.000000Z &ltclass 'obspy.core.utcdatetime.UTCDateTime'>
+                        2012-09-07T12:15:20.000000Z
+    
+                        dt.year      ->  2012
+                        dt.month     ->  9
+                        dt.day       ->  7
+                        dt.hour      ->  12
+                        dt.minute    ->  15
+                        dt.second    ->  20
+                        dt.timestamp ->  1347020120.0
+                        dt.weekday   ->  4</pre></code>
+                </div>
+                
 
-                2012-09-07T12:15:20.000000Z
+                <p>Last but not least, one can subtract <kbd>UTCDateTime</kbd> objects and get the difference of them in seconds:</p>
 
-                dt.year      ->  2012
-                dt.month     ->  9
-                dt.day       ->  7
-                dt.hour      ->  12
-                dt.minute    ->  15
-                dt.second    ->  20
-                dt.timestamp ->  1347020120.0
-                dt.weekday   ->  4
-            </div>
-            
+                <div class="input-code-block">
+                    <pre><code><span class="comment"># create another UTCDateTime object</span>
+                        dt2 = <span class="python-color1">UTCDateTime</span>("2012-09-07T12:20:00")
+                        <span class="python-color1">print</span>(dt2)
+                        <span class="python-color1">print</span>()
+                        <span class="comment"># calculate the difference of the two UTCDateTime objects</span>
+                        diff = dt2 - dt
+                        <span class="python-color1">print</span>(diff)</code></pre>
+                </div>
 
-            <p>Last but not least, one can subtract <span class="main-block__font-code">UTCDateTime</span> objects and get the difference of them in seconds:</p>
+                <div class="output-code-block">
+                    <pre><code>2012-09-07T12:20:00.000000Z
 
-            <div class="main-block__input-code-block">
-                <span># create another UTCDateTime object</span>
-                <span>dt2 = UTCDateTime("2012-09-07T12:20:00")</span>
-                <span>print(dt2)</span>
-                <span>print()</span>
-                <span># calculate the difference of the two UTCDateTime objects</span>
-                <span>diff = dt2 - dt</span>
-                <span>print(diff)</span>
-            </div>
-
-            <div class="main-block__output-code-block">
-                2012-09-07T12:20:00.000000Z
-
-                280.0
+                        280.0</pre></code>
+                </div>
             </div>
         </section>
 

@@ -1,5 +1,8 @@
 let uploadFileButton = document.querySelector("#upload-file-button");
 let uploadFileInput = document.querySelector("#upload-file-input");
+let uploadAnotherFileButton = document.querySelector("#upload-another-file-button");
+let uploadAnotherFileInput = document.querySelector("#upload-another-file-input");
+
 let uploadSection = document.querySelector("#upload-section");
 let graphSection = document.querySelector("#graph-section");
 
@@ -10,18 +13,97 @@ let removeNoiseButton = document.querySelector("#remove-noise-button");
 let wholeSignalButton = document.querySelector("#whole-signal-button");
 let windowLengthSlider = document.querySelector("#window-length-slider");
 let signalLeftSideBadge = document.querySelector("#signal-left-side-badge");
+
+let downloadGraphButton = document.querySelector("#download-graph-button");
+let downloadDataButton = document.querySelector("#download-data-button");
+
+// let signalLeftSideInput = document.querySelector("#signal-left-side-input");
+// let windowLengthInput = document.querySelector("#window-length-input");
+// let noiseRightSideInput = document.querySelector("#noise-right-side-input");
+
 let windowLengthBadge = document.querySelector("#window-length-badge");
 let noiseRightSideBadge = document.querySelector("#noise-right-side-badge");
 let noiseTransitionedDiv = document.querySelector("#noise-transitioned-div");
 let computeFourierButton = document.querySelector("#computeFourierButton");
 let timeSeriesTab = document.querySelector("#time-series-tab");
 let fourierTab = document.querySelector("#fourier-tab");
+let UploadTab = document.querySelector("#upload-tab");
 let optionsMenu = document.querySelector("#options-menu");
 let spinnerDiv = document.querySelector("#spinner-div");
 let alertPlaceholder = document.querySelector('#liveAlertPlaceholder')
+let loadButton = document.querySelector("#load-button");
 
+let fourierDataList;
 
 spinnerDiv.style.display = 'none';
+
+
+downloadGraphButton.addEventListener('click', function() {
+    Plotly.downloadImage('fourier-graph', {
+        format: 'png',
+        filename: 'plotly_graph',
+        width: 800,
+        height: 500,
+        scale: 1,
+        data: fourierDataList
+      });
+  });
+
+
+downloadDataButton.addEventListener('click', function() {
+    fetch('/download', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fourierDataList)
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'fourier_data.xlsx';
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+    });
+  });
+
+loadButton.addEventListener('click', () => {
+    uploadSection.style.display = 'none';
+    graphSection.style.display = 'block';
+    spinnerDiv.style.display = 'block';
+    fetch('/load-test-mseed-file')
+    .then(response => { 
+        if (response.ok) {
+            return response.json();
+        }
+        else {
+            return response.json().then(data => {
+                alert('Error: ' + data['error-message']);
+                throw new Error(data['error-message']);
+            })
+        }
+    })
+    .then(mseedData => {
+        if (mseedData['warning-message']) {
+            alert('Warning: ' + mseedData['warning-message']);
+        }
+        
+        let convertedMseedData = prepareTracesList(mseedData);
+        initializeParameters();
+        createNewPlot(convertedMseedData);
+        spinnerDiv.style.display = 'none';
+        
+    })
+    .catch(error => {
+        // Handle any errors during the upload process
+        console.error('Error uploading MSeed file:', error);
+    });
+});
+
 
 
 const alert = (message, type) => {
@@ -65,15 +147,31 @@ fourierTab.addEventListener('click', () => {
     optionsMenu.style.display = 'none';
 })
 
+UploadTab.addEventListener('click', () => {
+    optionsMenu.style.display = 'none';
+})
+
 
 
 uploadFileButton.addEventListener('click', function() {
     uploadFileInput.click();
 });
 
+uploadAnotherFileButton.addEventListener('click', function() {
+    uploadAnotherFileInput.click();
+});
+
+
+uploadAnotherFileInput.addEventListener('change', function(event) {
+    uploadMseedFile()
+})
+
 uploadFileInput.addEventListener('change', function(event) {
+    uploadMseedFile()
+})
 
 
+function uploadMseedFile() {
     uploadSection.style.display = 'none';
     graphSection.style.display = 'block';
 
@@ -117,7 +215,7 @@ uploadFileInput.addEventListener('change', function(event) {
         // Handle any errors during the upload process
         console.error('Error uploading MSeed file:', error);
     });
-})
+}
 
 
 
@@ -187,6 +285,10 @@ function createNewPlot(tracesList) {
     signalLeftSideBadge.textContent = `${startingSignalLeftSide.toFixed(0)} sec`;
     windowLengthBadge.textContent = `${startingWindowLength.toFixed(0)} sec`;
     
+    // signalLeftSideInput.value = startingSignalLeftSide.toFixed(2);
+    // windowLengthInput.value = startingWindowLength.toFixed(2);
+    
+    
     
     for (tr of tracesList) {
 
@@ -223,7 +325,6 @@ function createNewPlot(tracesList) {
     signalWindowLeftSideSlider.max = maxXValueTotal;
     signalWindowLeftSideSlider.step = 1;
     signalWindowLeftSideSlider.value = startingSignalLeftSide;
-
     Plotly.newPlot('time-series-graph', tracesList, layout, config);
 }
 
@@ -239,6 +340,9 @@ signalWindowLeftSideSlider.addEventListener('input', function() {
         shp['x1'] = signalLeftValue + Number(windowLengthSlider.value);
     }
     signalLeftSideBadge.textContent = `${signalLeftValue.toFixed(0)} sec`;
+    // signalLeftSideInput.value = signalLeftValue.toFixed(2);
+
+
     Plotly.update('time-series-graph', {}, layout);
 })
 
@@ -247,6 +351,7 @@ windowLengthSlider.addEventListener('input', function() {
     let signalLeftValue = Number(signalWindowLeftSideSlider.value);
     let windowLengthValue = Number(windowLengthSlider.value);
     windowLengthBadge.textContent = `${windowLengthValue.toFixed(0)} sec`;
+    // windowLengthInput.value = windowLengthValue.toFixed(2);
     let shapesSignal = layout.shapes.filter(shp => shp.customdata === 'signal');
 
     for (shp of shapesSignal) {
@@ -272,6 +377,8 @@ wholeSignalButton.addEventListener('click', () => {
     }
     windowLengthSlider.value = maxXValueTotal - minXValueTotal;
     signalWindowLeftSideSlider.value = minXValueTotal;
+    signalLeftSideBadge.textContent = `${minXValueTotal.toFixed(0)} sec`;
+    windowLengthBadge.textContent = `${(maxXValueTotal - minXValueTotal).toFixed(0)} sec`;
     Plotly.update('time-series-graph', {}, layout);
 })
 
@@ -312,6 +419,8 @@ addNoiseButton.addEventListener('click', () => {
     noiseWindowRightSideSlider.step = 1;
     noiseWindowRightSideSlider.value = maxXValueTotal / 8;
     noiseRightSideBadge.textContent = `${Number(noiseWindowRightSideSlider.value).toFixed(0)} sec`;
+    // noiseRightSideInput.value = Number(noiseWindowRightSideSlider.value).toFixed(2);
+
     Plotly.update('time-series-graph', {}, layout);
    
   
@@ -323,11 +432,8 @@ removeNoiseButton.addEventListener('click', () => {
     addNoiseButton.disabled = false;
     removeNoiseButton.style.display = 'none';
     noiseTransitionedDiv.classList.remove('active');
-    console.log(layout);
     let newLayoutShapes = layout.shapes.filter(shp => shp.customdata != 'noise');
-    console.log(newLayoutShapes);
     layout.shapes = newLayoutShapes;
-    console.log(layout);
     Plotly.update('time-series-graph', {}, layout);
 })
 
@@ -336,6 +442,7 @@ noiseWindowRightSideSlider.addEventListener('input', () => {
     let noiseRightValue = Number(noiseWindowRightSideSlider.value);
     let windowLengthValue = Number(windowLengthSlider.value);
     noiseRightSideBadge.textContent = `${noiseRightValue.toFixed(0)} sec`;
+    // noiseRightSideInput.value = noiseRightValue.toFixed(2);
 
     let shapesNoise= layout.shapes.filter(shp => shp.customdata === 'noise');
 
@@ -404,7 +511,7 @@ function calculateFourier() {
 
 function plotFourierData(fourierData) {
 
-    let dataList = [];
+    fourierDataList = [];
     let metrSignalNoise = 1;
     let colors = ['#5E62FF', '#B9BBFF', '#FFF532', '#FDF89E', '#FE4252', '#FBA3AA']
     let totalTracesFourier = 0;
@@ -415,7 +522,7 @@ function plotFourierData(fourierData) {
         totalTracesFourier += 1;
         for (signal_noise_key in trace_dict) {
              
-            dataList.push(
+            fourierDataList.push(
                 { 
                     x: trace_dict[signal_noise_key]['xdata'], 
                     y: trace_dict[signal_noise_key]['ydata'], 
@@ -480,178 +587,9 @@ function plotFourierData(fourierData) {
 
     
 
-    Plotly.newPlot('fourier-graph', dataList, layoutFourier, configFourier);
+    Plotly.newPlot('fourier-graph', fourierDataList, layoutFourier, configFourier);
 }
 
 
-
-
-
-
-
-// // let signalStart = document.querySelector("#signal-start");
-// // let noiseStart = document.querySelector("#noise-start");
-// // let windowLength = document.querySelector("#windowLength");
-// // let addNoiseButton = document.querySelector("#noise-fourier");
-// // let noiseTransitionedDiv = document.querySelector("#noise-div");
-// // let uploadButtonTop = document.querySelector("#upload-button-top");
-// // let uploadInput = document.querySelector('#upload-input');
-// // let optionsDiv = document.querySelector("#options-menu");
-// // let windowButton = document.querySelector("#window-signal-button");
-// // let signalButton = document.querySelector("#whole-signal-button");
-// // let computeFourier = document.querySelector("#compute-fourier-button");
-// // let whereComputeFourier = 'whole-signal';
-
-
-
-// signalButton.style.backgroundColor = 'rgb(182, 182, 182)';
-// windowButton.style.backgroundColor = 'white';
-
-// signalButton.addEventListener('click', () => {
-//     optionsDiv.classList.remove('active');
-//     signalButton.style.backgroundColor = 'rgb(182, 182, 182)';
-//     windowButton.style.backgroundColor = 'white';
-//     whereComputeFourier = 'whole-signal';
-// })
-
-// windowButton.addEventListener('click', () => {
-//     optionsDiv.classList.add('active');
-//     windowButton.style.backgroundColor = 'rgb(182, 182, 182)';
-//     signalButton.style.backgroundColor = 'white';
-//     whereComputeFourier = 'window-signal';
-// })
-
-// computeFourier.addEventListener('click', () => {
-//     let URLFetch;
-//     if (whereComputeFourier == 'whole-signal') {
-//         URLFetch = `/compute-fourier?where=${whereComputeFourier}`;
-//     }
-//     else {
-//         if (addNoiseButton.checked === true) {
-//             URLFetch = `/compute-fourier?where=${whereComputeFourier}&signal-window-left=${signalStart.value}&noise-window-right=${noiseStart.value}&window-length=${windowLength.value}`;
-//         }
-//         else {
-//             URLFetch = `/compute-fourier?where=${whereComputeFourier}&signal-window-left=${signalStart.value}&noise-window-right=null&window-length=${windowLength.value}`;
-//         }
-//     }
-//     calculateFourier(URLFetch);
-// })
-
-
-
-
-// addNoiseButton.addEventListener("change", (event) => {
-//     let addNoiseButtonChecked = event.target.checked;
-
-//     if (addNoiseButtonChecked) {
-//         noiseTransitionedDiv.classList.add('active');
-//     }
-//     else {
-//         noiseTransitionedDiv.classList.remove('active');
-//     }
-// })
-
-
-
-
-
-
-
-// function prepareTracesListFourier(mseedDataObject) {
-//     let xData;
-//     let yData;
-//     let tracesList = [];
-//     let metr = 1;
-//     for (tr in mseedDataObject) {
-//         tracesList.push(
-//             { 
-//                 x: mseedDataObject[tr]['signal']['xdata'], 
-//                 y: mseedDataObject[tr]['signal']['ydata'], 
-//                 type: 'scatter', 
-//                 mode: 'lines', 
-//                 name: `Channel: ${mseedDataObject[tr]['signal']['stats']['channel']}` , 
-//                 xaxis:`x${metr}`, 
-//                 yaxis: `y${metr}`,
-//                 line: {color: '#367AFA'}
-//             }
-//         );
-//         metr += 1;
-//     };
-
-//     if ('fourier' in mseedDataObject) {
-//         let metr2 = 1;
-//         for (tr in mseedDataObject) {
-//             tracesList.push(
-//                 { 
-//                     x: mseedDataObject[tr]['fourier']['xdata'], 
-//                     y: mseedDataObject[tr]['fourier']['ydata'], 
-//                     type: 'scatter', 
-//                     mode: 'lines', 
-//                     name: `Channel: ${mseedDataObject[tr]['fourier']['stats']['channel']}` , 
-//                     xaxis:`x${metr2}`, 
-//                     yaxis: `y${metr2}`,
-//                     line: {color: '#367AFA'}
-//                 }
-//             );
-//             metr2 += 1;
-//         }
-//     }
-    
-//     return tracesList;
-// }
-
-
-
-
-
-// function initializeParametersFourier() {
-    
-//     config = {
-//         scrollZoom: true,
-//         responsive: true,
-//         displayModeBar: true,
-//         modeBarButtons: [['pan2d', 'zoom2d', 'resetScale2d', 'resetViews', 'toggleSpikelines']]
-//     };
-    
-//     layout = {
-//         title: '',
-//         xaxis: {
-//             type: 'log',
-//             title: 'X-axis (log scale)'
-//           },
-//           yaxis: {
-//             type: 'log',
-//             title: 'Y-axis (log scale)'
-//           },
-//           xaxis2: {
-//             type: 'log',
-//             title: 'X-axis (log scale)'
-//           },
-//           yaxis2: {
-//             type: 'log',
-//             title: 'Y-axis (log scale)'
-//           },
-
-//           xaxis3: {
-//             type: 'log',
-//             title: 'X-axis (log scale)'
-//           },
-//           yaxis3: {
-//             type: 'log',
-//             title: 'Y-axis (log scale)'
-//           },
-//         height: 900,
-//         grid: {rows: 3, columns: 1, pattern: 'independent'},
-//         shapes: [ ],
-//         annotations: [],
-//         legend: {
-//             font: {
-//             size: 20 // Adjust the font size as desired
-//             },
-//         }
-//     };
-
-    
-// }
 
 

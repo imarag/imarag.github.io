@@ -1,0 +1,45 @@
+#badge-container span {
+    width: 70px;
+}
+
+#badge-container span:hover {
+    transform: rotate(10deg);
+}
+
+
+.input-code-block {
+    background-color: #f8f8f8;
+    color: rgb(0, 0, 0);
+    border: black 0.2px solid;
+    padding: 10px;
+    margin: 30px 0px;
+    border-radius:5px;
+}
+
+.output-code-block {
+    background-color: #3e3e3e;
+    color: rgb(210, 210, 210);
+    padding: 10px;
+    margin: 30px 0px;
+    border-radius:5px;
+}
+
+.comment {
+    color: rgba(166, 167, 167, 0.961);
+}
+
+
+
+pre {
+    white-space: pre-line;
+    margin: 0px;
+}
+
+.python-color1 {
+    color: rgb(142, 1, 1);
+}
+
+.python-color2 {
+    color: blue;
+}
+

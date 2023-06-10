@@ -36,8 +36,13 @@
         
     }
 
+    #options-section img {
+        width:20px; 
+        height: 20px;
+    }
+
     #tab-content {
-        height: 150px;
+        height: 190px;
         position: relative;
         padding: 20px;
     }
@@ -70,8 +75,7 @@
             <div class="container-lg">
                 <p class="display-2 text-center mb-5">Signal Processing</p>
                 <div id="joke-div">
-                    <p class="text-center fs-3">Why the signals go to the barber shop?</p>
-                    <p class="text-center fs-3 text-muted">To get their hair trimmed!</p>
+                    <p class="text-center fs-3 text-muted">A tool to process the seismogram signals according to your needs. Try the interactive tool <a href="#" class="link-info">below</a>  </p>
                 </div>
                 
                 <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
@@ -88,8 +92,108 @@
         </div>
     </section>
 
+    <section id="options-section">
+        <div class="container-lg fs-4 bg-info rounded" id="option-menu">
+            <div class="row">
+                <div class="col border rounded m-0 p-3">
+                    <div class="row">
+                        <div class="col">
+                            <div class="dropdown">
+                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">
+                                    <p class="mb-0 pb-0 text-dark">detrend-type</p>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li><a class="dropdown-item" value="simple" name="simple" href="#">simple</a></li>
+                                  <li><a class="dropdown-item" value="linear" name="linear" href="#">linear</a></li>
+                                  <li><a class="dropdown-item" value="constant" name="constant" href="#">constant</a></li>
+                                  <li><a class="dropdown-item" value="polynomial" name="polynomial" href="#">polynomial</a></li>
+                                  <li><a class="dropdown-item" value="spline" name="spline" href="#">spline</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col">
+                            
+                        </div>
+                        <div class="col">
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="col border rounded">
+                    <div class="row">
+                        <div class="col">
+                            <div class="dropdown">
+                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
+                                    <p class="mb-0 pb-0 text-dark">taper-type</p>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li><a class="dropdown-item" value="cosine" name="cosine" href="#">cosine</a></li>
+                                  <li><a class="dropdown-item" value="barthann" name="barthann" href="#">barthann</a></li>
+                                  <li><a class="dropdown-item" value="bartlett" name="bartlett" href="#">bartlett</a></li>
+                                  <li><a class="dropdown-item" value="blackman" name="blackman" href="#">blackman</a></li>
+                                  <li><a class="dropdown-item" value="blackmanharris" name="blackmanharris" href="#">blackmanharris</a></li>
+                                  <li><a class="dropdown-item" value="bohman" name="bohman" href="#">bohman</a></li>
+                                  <li><a class="dropdown-item" value="boxcar" name="boxcar" href="#">boxcar</a></li>
+                                  <li><a class="dropdown-item" value="chebwin" name="chebwin" href="#">chebwin</a></li>
+                                  <li><a class="dropdown-item" value="flattop" name="flattop" href="#">flattop</a></li>
+                                  <li><a class="dropdown-item" value="gaussian" name="gaussian" href="#">gaussian</a></li>
+                                  <li><a class="dropdown-item" value="general_gaussian" name="general_gaussian" href="#">general_gaussian</a></li>
+                                  <li><a class="dropdown-item" value="hamming" name="hamming" href="#">hamming</a></li>
+                                  <li><a class="dropdown-item" value="hann" name="hann" href="#">hann</a></li>
+                                  <li><a class="dropdown-item" value="kaiser" name="kaiser" href="#">kaiser</a></li>
+                                  <li><a class="dropdown-item" value="hann" name="hann" href="#">hann</a></li>
+                                  <li><a class="dropdown-item" value="nuttall" name="nuttall" href="#">nuttall</a></li>
+                                  <li><a class="dropdown-item" value="parzen" name="parzen" href="#">parzen</a></li>
+                                  <li><a class="dropdown-item" value="slepian" name="slepian" href="#">slepian</a></li>
+                                  <li><a class="dropdown-item" value="triang" name="triang" href="#">triang</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
+                                <p class="mb-0 pb-0 text-dark">taper-side</p>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" value="left" name="left" href="#">left</a></li>
+                              <li><a class="dropdown-item" value="right" name="right" href="#">right</a></li>
+                              <li><a class="dropdown-item" value="both" name="both" href="#">both</a></li>
+                            </ul>
+                            <input id="taper-side-input" class="form-control  form-control-sm" type="text" readonly>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-info" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
+                                <label for="taper-length" class="form-label">taper length</label>
+                            </button>
+                            <input id="taper-length" class="form-control form-control-sm" type="number" min="0" max="0.5" step="0.05" value="0.3">
 
-    <section id="graph-section">
+                        </div>
+                    </div>
+                </div>
+                <div class="col border rounded">
+                    <div class="row">
+                        <div class="col">
+  
+                        </div>
+                        <div class="col">
+                            
+                        </div>
+                        <div class="col">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+       
+    </section>
+
+
+    <!-- <section id="graph-section">
         <div class="container-lg fs-4 bg-info rounded">
             <ul class="nav nav-tabs" id="graph-tab" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -110,10 +214,13 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link text-dark" id="save-tab" data-bs-toggle="tab" data-bs-target="#save-tab-pane" type="button" role="tab" aria-controls="save-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/save.png" class="img-fluid">Save</button>
                 </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link text-dark" id="test-tab" data-bs-toggle="tab" data-bs-target="#test-tab-pane" type="button" role="tab" aria-controls="test-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/save.png" class="img-fluid">test</button>
+                </li>
             </ul>
             <div class="tab-content" id="tab-content">
                 <div class="tab-pane fade show active" id="detrend-tab-pane" role="tabpanel" aria-labelledby="detrend-tab" tabindex="0">
-                    <label for="detrend-type">detrend type</label>
+                    <label for="detrend-type  d-inline d-md-block">detrend type</label>
                     <select id="detrend-type">
                         <option value="simple" name="simple" selected>simple</option>
                         <option value="linear" name="simple">linear</option>
@@ -124,10 +231,13 @@
                     <button class="btn btn-dark button-bottom-right" id="detrend-button" disabled>detrend</button>
                 </div>
                 <div class="tab-pane fade" id="taper-tab-pane" role="tabpanel" aria-labelledby="taper-tab" tabindex="0">
-                    <div class="row">
-                        <div class="col">
-                            <label for="taper-type">detrend type</label>
-                            <select id="taper-type">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-3 col-6">
+                            <button>
+                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
+                                <p>detrend type</p>
+                            </button>
+                            <select id="taper-type" class="form-select">
                                 <option value="cosine" name="cosine">cosine</option>
                                 <option value="barthann" name="barthann">barthann</option>
                                 <option value="bartlett" name="bartlett">bartlett</option>
@@ -148,18 +258,21 @@
                                 <option value="triang" name="triang">triang</option>
                             </select>
                         </div>
-                        <div class="col">
-                            <label for="taper-side">detrend side</label>
-                            <select id="taper-side">
+                    
+                        
+                        <div class="col-lg-3 col-6">
+                            <label for="taper-side" class="form-label">detrend side</label>
+                            <select id="taper-side" class="form-select">
                                 <option value="left" name="left">left</option>
                                 <option value="right" name="right">right</option>
                                 <option value="both" name="both" selected>both</option>
                             </select>
                         </div>
-                        <div class="col">
-                            <label for="taper-length">detrend length (%)</label>
-                            <input id="taper-length" type="number" min="0" max="0.5" step="0.05" value="0.3">
+                        <div class="col-lg-3 col-6">
+                            <label for="taper-length" class="form-label">detrend length (%)</label>
+                            <input id="taper-length" class="form-select" type="number" min="0" max="0.5" step="0.05" value="0.3">
                         </div>
+                        
                     </div>
                     <button class="btn btn-dark button-bottom-right" id="taper-button" disabled>taper</button>
                 </div>
@@ -179,9 +292,69 @@
                 <div class="tab-pane fade" id="save-tab-pane" role="tabpanel" aria-labelledby="save-tab" tabindex="0">
                     <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
                 </div>
+                <div class="tab-pane fade" id="test-tab-pane" role="tabpanel" aria-labelledby="test-tab" tabindex="0">
+                    <div class="row">
+                        <div class="col border border-dark">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="col border border-dark">
+                            
+                                        <div class="dropdown">
+                                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
+                                                <p class="mb-0 pb-0 text-dark">trim-type</p>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                              <li><a class="dropdown-item" href="#">Action</a></li>
+                                              <li><a class="dropdown-item" href="#">Another action</a></li>
+                                              <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                            </ul>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="col border border-dark">
+                            
+                                        <div class="dropdown">
+                                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
+                                                <p class="mb-0 pb-0 text-dark">trim-type</p>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                              <li><a class="dropdown-item" href="#">Action</a></li>
+                                              <li><a class="dropdown-item" href="#">Another action</a></li>
+                                              <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
+                                    <p class="mb-0 pb-0 text-dark">trim-type</p>
+                                </button>
+                                <ul class="dropdown-menu">
+                                  <li><a class="dropdown-item" href="#">Action</a></li>
+                                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </div>
+                            
+                        </div>
+                        <div class="col border border-dark">
+                            <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
+                        </div>
+                        <div class="col border border-dark">
+                            <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
+                        </div>
+          
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </section> -->
 
 
     <section id="graph-section">
