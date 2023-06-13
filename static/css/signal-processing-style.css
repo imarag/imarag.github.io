@@ -1,0 +1,48 @@
+#wave-one-line {
+    position: relative;
+
+    bottom: 120px;  
+    object-fit: cover;
+
+   height: 280px;
+    width: 100%;
+    transform: scale(2) translateX(100px);
+    opacity: 0.3;
+}
+
+#text-intro {
+    position: relative;
+    top: 40px;
+}
+
+#title-div {
+    overflow: hidden;
+}
+
+#explanation-section {
+    margin-top: 200px;
+}
+
+
+ #upload-file-paragraph {
+    padding: 200px 0px;
+}
+
+#option-menu img{
+    /* width:20px;  */
+    height: 28px;
+}
+
+.relative-pos {
+    position: relative;
+}
+
+
+
+#option-row {
+    height: 180px;
+}
+
+.form-element {
+    height: 35px;
+}

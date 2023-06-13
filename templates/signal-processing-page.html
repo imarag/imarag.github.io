@@ -5,64 +5,7 @@
 {% endblock %}
 
 {% block extcss %}
-<style>
-    #wave-one-line {
-        position: relative;
-        top: 67px;
-    }
-
-    #title-section {
-        margin-bottom: 100px;
-    }
-
-    select, input, #left-filter, #right-filter {
-        cursor: pointer;
-        font-family: Arial, sans-serif;
-        font-size: 20px;
-        padding: 8px;
-        height: 40px;
-        color: #333;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        width: 150px;
-    }
-
-
-    #graph-tab img{
-        width:30px; 
-        height: 25px; 
-        margin-right: 6px;
-        
-    }
-
-    #options-section img {
-        width:20px; 
-        height: 20px;
-    }
-
-    #tab-content {
-        height: 190px;
-        position: relative;
-        padding: 20px;
-    }
-
-    
-
-    .button-bottom-right {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        width: 100px;
-    }
-
-    #upload-file-paragraph {
-        padding: 300px 0px;
-    }
-  
-
-
-</style>
+    <link rel="stylesheet" href="/static/css/signal-processing-style.css">
 {% endblock %}
 
 
@@ -71,15 +14,12 @@
 <div>
 
     <section id="title-section">
-        <div class="bg-light fs-2 p-5">
+        <div class="bg-light fs-2" id="title-div">
             <div class="container-lg">
-                <p class="display-2 text-center mb-5">Signal Processing</p>
-                <div id="joke-div">
-                    <p class="text-center fs-3 text-muted">A tool to process the seismogram signals according to your needs. Try the interactive tool <a href="#" class="link-info">below</a>  </p>
-                </div>
-                
-                <img src="/static/img/signal-processing-images/single-line-wave.png" class="img-fluid" id="wave-one-line">
+                <p class="display-1 text-center mb-5">Signal Processing</p>
+                <p class="text-center display-6   bg-secondary text-light shadow-lg  fw-bold rounded p-3 mb-5" id="text-intro">A tool to process the seismogram signals according to your needs. Try the interactive tool below  </p>
             </div>
+            <img src="/static/img/output3.svg" class="img-fluid" id="wave-one-line">
         </div>
     </section>
 
@@ -92,273 +32,253 @@
         </div>
     </section>
 
+    
+    
+
     <section id="options-section">
         <div class="container-lg fs-4 bg-info rounded" id="option-menu">
-            <div class="row">
-                <div class="col border rounded m-0 p-3">
-                    <div class="row">
-                        <div class="col">
-                            <div class="dropdown">
-                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">
-                                    <p class="mb-0 pb-0 text-dark">detrend-type</p>
-                                </button>
-                                <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" value="simple" name="simple" href="#">simple</a></li>
-                                  <li><a class="dropdown-item" value="linear" name="linear" href="#">linear</a></li>
-                                  <li><a class="dropdown-item" value="constant" name="constant" href="#">constant</a></li>
-                                  <li><a class="dropdown-item" value="polynomial" name="polynomial" href="#">polynomial</a></li>
-                                  <li><a class="dropdown-item" value="spline" name="spline" href="#">spline</a></li>
-                                </ul>
+            <div class="row justify-content-center align-items-center text-center" id="option-row">
+                <div class="col-4  rounded relative-pos">
+                    <div class="d-lg-none d-block">
+                        <button class="btn btn-info dropdown-toggle" id="detrend-expanding-button-main" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">
+                            <p class=" text-dark">Detrend</p>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <div class="p-3 text-center">
+                                <form  action="/apply-processing-detrend" method="GET" id="detrend-form-element-expanding">
+                                    <div class="row justify-content-center text-center">
+                                        <div class="col-12">
+                                            <p class="fs-4 text-center  mb-3  fw-bold">Detrend</p>
+                                            <hr>
+                                            <label for="detrend-type-select-expanding" class="form-label">type</label>
+                                            <select class="form-select" name="detrend-type-select" aria-label="Default select example" id="detrend-type-select-expanding">
+                                                <option value="simple" name="simple">simple</option>
+                                                <option value="linear" name="linear">linear</option>
+                                                <option value="constant" name="constant">constant</option>
+                                                <option value="polynomial" name="polynomial"">polynomial</option>
+                                                <option value="spline" name="spline">spline</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-primary mt-3" id="detrend-apply-button-expanding">apply</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                        </div>
-                        <div class="col">
-                            
-                        </div>
-                        <div class="col">
-                            
-                        </div>
+                        </ul>
                     </div>
-                </div>
-                <div class="col border rounded">
-                    <div class="row">
-                        <div class="col">
-                            <div class="dropdown">
-                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
-                                    <p class="mb-0 pb-0 text-dark">taper-type</p>
-                                </button>
-                                <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" value="cosine" name="cosine" href="#">cosine</a></li>
-                                  <li><a class="dropdown-item" value="barthann" name="barthann" href="#">barthann</a></li>
-                                  <li><a class="dropdown-item" value="bartlett" name="bartlett" href="#">bartlett</a></li>
-                                  <li><a class="dropdown-item" value="blackman" name="blackman" href="#">blackman</a></li>
-                                  <li><a class="dropdown-item" value="blackmanharris" name="blackmanharris" href="#">blackmanharris</a></li>
-                                  <li><a class="dropdown-item" value="bohman" name="bohman" href="#">bohman</a></li>
-                                  <li><a class="dropdown-item" value="boxcar" name="boxcar" href="#">boxcar</a></li>
-                                  <li><a class="dropdown-item" value="chebwin" name="chebwin" href="#">chebwin</a></li>
-                                  <li><a class="dropdown-item" value="flattop" name="flattop" href="#">flattop</a></li>
-                                  <li><a class="dropdown-item" value="gaussian" name="gaussian" href="#">gaussian</a></li>
-                                  <li><a class="dropdown-item" value="general_gaussian" name="general_gaussian" href="#">general_gaussian</a></li>
-                                  <li><a class="dropdown-item" value="hamming" name="hamming" href="#">hamming</a></li>
-                                  <li><a class="dropdown-item" value="hann" name="hann" href="#">hann</a></li>
-                                  <li><a class="dropdown-item" value="kaiser" name="kaiser" href="#">kaiser</a></li>
-                                  <li><a class="dropdown-item" value="hann" name="hann" href="#">hann</a></li>
-                                  <li><a class="dropdown-item" value="nuttall" name="nuttall" href="#">nuttall</a></li>
-                                  <li><a class="dropdown-item" value="parzen" name="parzen" href="#">parzen</a></li>
-                                  <li><a class="dropdown-item" value="slepian" name="slepian" href="#">slepian</a></li>
-                                  <li><a class="dropdown-item" value="triang" name="triang" href="#">triang</a></li>
-                                </ul>
+                    <div class="d-none d-lg-block">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <img src="/static/img/signal-processing-images/detrend.png" class="img-fluid my-0 py-0">
+                            </div>
+                            <div class="col">
+                                <p class="fs-5 text-center  my-0 py-0 fw-bold">Detrend</p>
                             </div>
                         </div>
-                        <div class="col">
-                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
-                                <p class="mb-0 pb-0 text-dark">taper-side</p>
-                            </button>
-                            <ul class="dropdown-menu">
-                              <li><a class="dropdown-item" value="left" name="left" href="#">left</a></li>
-                              <li><a class="dropdown-item" value="right" name="right" href="#">right</a></li>
-                              <li><a class="dropdown-item" value="both" name="both" href="#">both</a></li>
-                            </ul>
-                            <input id="taper-side-input" class="form-control  form-control-sm" type="text" readonly>
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-info" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
-                                <label for="taper-length" class="form-label">taper length</label>
-                            </button>
-                            <input id="taper-length" class="form-control form-control-sm" type="number" min="0" max="0.5" step="0.05" value="0.3">
+                        <hr class="mt-1 mb-1">
+                        <form  action="/apply-processing-detrend" method="GET" id="detrend-form-element">
+                            <div class="row justify-content-center align-items-start text-center d-none d-lg-block">
+                                <div class="col-4">
+                                    <label for="detrend-type-select" class="form-label  fs-6">type</label>
+                                    <select class="form-select form-element" name="detrend-type-select" aria-label="Default select example" id="detrend-type-select">
+                                        <option value="simple" name="simple">simple</option>
+                                        <option value="linear" name="linear">linear</option>
+                                        <option value="constant" name="constant">constant</option>
+                                        <option value="polynomial" name="polynomial"">polynomial</option>
+                                        <option value="spline" name="spline">spline</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
 
-                        </div>
+                                </div>
+                                <div class="col-4">
+
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success mt-3 absolute-pos" id="detrend-apply-button">apply</button>
+                        </form>
                     </div>
                 </div>
-                <div class="col border rounded">
-                    <div class="row">
-                        <div class="col">
-  
-                        </div>
-                        <div class="col">
-                            
-                        </div>
-                        <div class="col">
-                            
-                        </div>
+                <div class="col-4  border-start border-light border-1 relative-pos">
+                    <div class="d-lg-none d-block">
+                        <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/static/img/signal-processing-images/taper.png" class="img-fluid">
+                            <p class=" text-dark">Taper</p>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <div class="p-3 text-center">
+                                <form action="/apply-processing-taper"  method="GET" id="taper-form-element-expanding">
+                                    <div class="row justify-content-center text-center">
+                                        <div class="col-12">
+                                            <p class="fs-4 text-center  mb-3  fw-bold">Taper</p>
+                                            <hr>
+                                            <label for="taper-type-select-expanding" class="form-label">type</label>
+                                            <select class="form-select" aria-label="Default select example" name="taper-type-select" id="taper-type-select-expanding">
+                                                <option value="cosine"           name="cosine"          >cosine</option>
+                                                <option value="barthann"         name="barthann"        >barthann</option>
+                                                <option value="bartlett"         name="bartlett"        >bartlett</option>
+                                                <option value="blackman"         name="blackman"        >blackman</option>
+                                                <option value="blackmanharris"   name="blackmanharris"  >blackmanharris</option>
+                                                <option value="bohman"           name="bohman"          >bohman</option>
+                                                <option value="boxcar"           name="boxcar"          >boxcar</option>
+                                                <option value="chebwin"          name="chebwin"         >chebwin</option>
+                                                <option value="flattop"          name="flattop"         >flattop</option>
+                                                <option value="gaussian"         name="gaussian"        >gaussian</option>
+                                                <option value="general_gaussian" name="general_gaussian">general_gaussian</option>
+                                                <option value="hamming"          name="hamming"         >hamming</option>
+                                                <option value="hann"             name="hann"            >hann</option>
+                                                <option value="kaiser"           name="kaiser"          >kaiser</option>
+                                                <option value="hann"             name="hann"            >hann</option>
+                                                <option value="nuttall"          name="nuttall"         >nuttall</option>
+                                                <option value="parzen"           name="parzen"          >parzen</option>
+                                                <option value="slepian"          name="slepian"         >slepian</option>
+                                                <option value="triang"           name="triang"          >triang</option>
+                                            </select>
+                                            <label for="taper-side-select-expanding" class="form-label">side</label>
+                                            <select class="form-select" aria-label="Default select example" name="taper-side-select" id="taper-side-select-expanding">
+                                                <option value="left"             name="left"           >left</option>
+                                                <option value="right"            name="right"          >right</option>
+                                                <option value="both"             name="both"           >both</option>
+                                            </select>
+                                            <label for="taper-length-input-expanding" class="form-label">length %</label>
+                                            <input id="taper-length-input-expanding" name="taper-length-input" class="form-control form-control-sm"  type="number" min="0" max="50" step="1" value="30"> 
+                                            <button type="submit" class="btn btn-primary  mt-3 " id="taper-apply-button-expanding">apply</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </ul>
                     </div>
+                    <div class="d-none d-lg-block">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <img src="/static/img/signal-processing-images/taper.png" class="img-fluid my-0 py-0">
+                            </div>
+                            <div class="col">
+                                <p class="fs-5 text-center  my-0 py-0 fw-bold">Taper</p>
+                            </div>
+                        </div>
+                        <hr class="mt-1 mb-1">
+                        <form action="/apply-processing-taper"  method="GET" id="taper-form-element">
+                            <div class="row justify-content-center align-items-start text-center">
+                                <div class="col-4">
+                                    <label for="taper-type-select" class="form-label  fs-6">type</label>
+                                    <select class="form-select form-element" name="taper-type-select" aria-label="Default select example" id="taper-type-select">
+                                        <option value="cosine"           name="cosine"          >cosine</option>
+                                        <option value="barthann"         name="barthann"        >barthann</option>
+                                        <option value="bartlett"         name="bartlett"        >bartlett</option>
+                                        <option value="blackman"         name="blackman"        >blackman</option>
+                                        <option value="blackmanharris"   name="blackmanharris"  >blackmanharris</option>
+                                        <option value="bohman"           name="bohman"          >bohman</option>
+                                        <option value="boxcar"           name="boxcar"          >boxcar</option>
+                                        <option value="chebwin"          name="chebwin"         >chebwin</option>
+                                        <option value="flattop"          name="flattop"         >flattop</option>
+                                        <option value="gaussian"         name="gaussian"        >gaussian</option>
+                                        <option value="general_gaussian" name="general_gaussian">general_gaussian</option>
+                                        <option value="hamming"          name="hamming"         >hamming</option>
+                                        <option value="hann"             name="hann"            >hann</option>
+                                        <option value="kaiser"           name="kaiser"          >kaiser</option>
+                                        <option value="hann"             name="hann"            >hann</option>
+                                        <option value="nuttall"          name="nuttall"         >nuttall</option>
+                                        <option value="parzen"           name="parzen"          >parzen</option>
+                                        <option value="slepian"          name="slepian"         >slepian</option>
+                                        <option value="triang"           name="triang"          >triang</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="taper-side-select" class="form-label fs-6">side</label>
+                                    <select class="form-select form-element" aria-label="Default select example" name="taper-side-select" id="taper-side-select">
+                                        <option value="left"             name="left"           >left</option>
+                                        <option value="right"            name="right"          >right</option>
+                                        <option value="both"             name="both"           >both</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="taper-length-input" class="form-label fs-6">length %</label>
+                                    <input id="taper-length-input" name="taper-length-input" class="form-control form-control-sm form-element"  type="number" min="0" max="50" step="1" value="30"> 
+                                </div>
+                                
+                            </div>
+                            <button type="submit" class="btn btn-success mt-3 absolute-pos" id="taper-apply-button">apply</button>
+                        </form>
+                    </div>
+                    
+                </div>
+                
+                <div class="col-4 border-start border-light border-1  relative-pos">
+                    <div class="d-lg-none d-block">
+                        <button class="btn btn-info dropdown-toggle" id="trim-expanding-button-main" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
+                            <p class=" text-dark">Trim</p>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <div class="p-3 text-center">
+                                <form action="/apply-processing-trim" method="GET" id="trim-form-element-expanding">
+                                    <div class="row justify-content-center text-center">
+                                        <div class="col-12">
+                                            <p class="fs-4 text-center  mb-3  fw-bold">Trim</p>
+                                            <hr>
+                                            <label for="trim-left-side-input-expanding" class="form-label">left side</label>
+                                            <input id="trim-left-side-input-expanding" name="trim-left-side-input" class="form-control form-control-sm"  type="number" min="0"  step="1" value="5">
+                                            <label for="trim-right-side-input-expanding" class="form-label">right side</label>
+                                            <input id="trim-right-side-input-expanding" name="trim-right-side-input" class="form-control form-control-sm"  type="number" min="0"  step="1" value="10">
+                                            <button type="submit" class="btn btn-primary mt-3" id="trim-apply-button-expanding">apply</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-none d-lg-block">
+                        
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid my-0 py-0">
+                            </div>
+                            <div class="col">
+                                <p class="fs-5 text-center  my-0 py-0 fw-bold">Trim</p>
+                            </div>
+                        </div>
+                        <hr class="mt-1 mb-1">
+                        <form action="/apply-processing-trim" method="GET" id="trim-form-element">
+                            <div class="row justify-content-center align-items-start text-center">
+                                <div class="col-4">
+                                    <label for="trim-left-side-input" class="form-label fs-6">left side</label>
+                                    <input id="trim-left-side-input" name="trim-left-side-input" class="form-control form-control-sm form-element"  type="number" min="0"  step="1" value="5"> 
+                                </div>
+                                <div class="col-4">
+                                    <label for="trim-right-side-input" class="form-label fs-6">right side</label>
+                                    <input id="trim-right-side-input" name="trim-right-side-input" class="form-control form-control-sm form-element"  type="number" min="0"  step="1" value="10"> 
+                                </div>
+                                <div class="col-4">
+                                    
+                                </div>
+                            </div>
+                            <button class="btn btn-success mt-3 absolute-pos" type="submit" id="trim-apply-button">apply</button>
+                        </form>
+                    </div>
+                    
                 </div>
             </div>
-
         </div>
+            
+
        
     </section>
 
+    <section id="processing-pills-section">
+        <div class="container-lg">
+            <div class="row gx-2 justify-content-center" id="processing-pills-container">
 
-    <!-- <section id="graph-section">
-        <div class="container-lg fs-4 bg-info rounded">
-            <ul class="nav nav-tabs" id="graph-tab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark active" id="detrend-tab" data-bs-toggle="tab" data-bs-target="#detrend-tab-pane" type="button" role="tab" aria-controls="detrend-tab-pane" aria-selected="true"><img src="/static/img/signal-processing-images/detrend.png" class="img-fluid">Detrend</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="taper-tab" data-bs-toggle="tab" data-bs-target="#taper-tab-pane" type="button" role="tab" aria-controls="taper-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/taper.png" class="img-fluid">Taper</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="trim-tab" data-bs-toggle="tab" data-bs-target="#trim-tab-pane" type="button" role="tab" aria-controls="trim-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/trim.png" class="img-fluid">Trim</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-tab-pane" type="button" role="tab" aria-controls="upload-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/upload-file.png" class="img-fluid">Upload</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="initial-tab" data-bs-toggle="tab" data-bs-target="#initial-tab-pane" type="button" role="tab" aria-controls="initial-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/initial.png" class="img-fluid">Reset</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="save-tab" data-bs-toggle="tab" data-bs-target="#save-tab-pane" type="button" role="tab" aria-controls="save-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/save.png" class="img-fluid">Save</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-dark" id="test-tab" data-bs-toggle="tab" data-bs-target="#test-tab-pane" type="button" role="tab" aria-controls="test-tab-pane" aria-selected="false"><img src="/static/img/signal-processing-images/save.png" class="img-fluid">test</button>
-                </li>
-            </ul>
-            <div class="tab-content" id="tab-content">
-                <div class="tab-pane fade show active" id="detrend-tab-pane" role="tabpanel" aria-labelledby="detrend-tab" tabindex="0">
-                    <label for="detrend-type  d-inline d-md-block">detrend type</label>
-                    <select id="detrend-type">
-                        <option value="simple" name="simple" selected>simple</option>
-                        <option value="linear" name="simple">linear</option>
-                        <option value="constant" name="simple">constant</option>
-                        <option value="polynomial" name="simple">polynomial</option>
-                        <option value="spline" name="simple">spline</option>
-                    </select>
-                    <button class="btn btn-dark button-bottom-right" id="detrend-button" disabled>detrend</button>
-                </div>
-                <div class="tab-pane fade" id="taper-tab-pane" role="tabpanel" aria-labelledby="taper-tab" tabindex="0">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-3 col-6">
-                            <button>
-                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
-                                <p>detrend type</p>
-                            </button>
-                            <select id="taper-type" class="form-select">
-                                <option value="cosine" name="cosine">cosine</option>
-                                <option value="barthann" name="barthann">barthann</option>
-                                <option value="bartlett" name="bartlett">bartlett</option>
-                                <option value="blackman" name="blackman">blackman</option>
-                                <option value="blackmanharris" name="blackmanharris">blackmanharris</option>
-                                <option value="bohman" name="bohman">bohman</option>
-                                <option value="boxcar" name="boxcar">boxcar</option>
-                                <option value="chebwin" name="chebwin">chebwin</option>
-                                <option value="flattop" name="flattop">flattop</option>
-                                <option value="gaussian" name="gaussian">gaussian</option>
-                                <option value="general_gaussian" name="general_gaussian">general_gaussian</option>
-                                <option value="hamming" name="hamming">hamming</option>
-                                <option value="hann" name="hann">hann</option>
-                                <option value="kaiser" name="kaiser">kaiser</option>
-                                <option value="nuttall" name="nuttall">nuttall</option>
-                                <option value="parzen" name="parzen" selected>parzen</option>
-                                <option value="slepian" name="slepian">slepian</option>
-                                <option value="triang" name="triang">triang</option>
-                            </select>
-                        </div>
-                    
-                        
-                        <div class="col-lg-3 col-6">
-                            <label for="taper-side" class="form-label">detrend side</label>
-                            <select id="taper-side" class="form-select">
-                                <option value="left" name="left">left</option>
-                                <option value="right" name="right">right</option>
-                                <option value="both" name="both" selected>both</option>
-                            </select>
-                        </div>
-                        <div class="col-lg-3 col-6">
-                            <label for="taper-length" class="form-label">detrend length (%)</label>
-                            <input id="taper-length" class="form-select" type="number" min="0" max="0.5" step="0.05" value="0.3">
-                        </div>
-                        
-                    </div>
-                    <button class="btn btn-dark button-bottom-right" id="taper-button" disabled>taper</button>
-                </div>
-                <div class="tab-pane fade" id="trim-tab-pane" role="tabpanel" aria-labelledby="trim-tab" tabindex="0">
-                    <label for="left-side">left side</label>
-                    <input id="left-side" type="number" name="left-side" min="0" step="1" value="0" />
-                    <label for="right-side">right side</label>
-                    <input id="right-side" type="number" name="right-side" min="0" step="1" value="0" />
-                    <button class="btn btn-dark button-bottom-right" id="trim-button" disabled>trim</button>
-                </div>
-                <div class="tab-pane fade" id="upload-tab-pane" role="tabpanel" aria-labelledby="upload-tab" tabindex="0">
-                    <p class="text-center mt-5 fs-3"><button class="btn btn-dark" id="upload-button-top">Upload</button> another file...</p>
-                </div>
-                <div class="tab-pane fade" id="initial-tab-pane" role="tabpanel" aria-labelledby="initial-tab" tabindex="0">
-                    <p class="text-center mt-5 fs-3"><button class="btn btn-danger" id="upload-button-top">Remove</button> all filters and get the initial waveform...</p>
-                </div>
-                <div class="tab-pane fade" id="save-tab-pane" role="tabpanel" aria-labelledby="save-tab" tabindex="0">
-                    <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
-                </div>
-                <div class="tab-pane fade" id="test-tab-pane" role="tabpanel" aria-labelledby="test-tab" tabindex="0">
-                    <div class="row">
-                        <div class="col border border-dark">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="col border border-dark">
-                            
-                                        <div class="dropdown">
-                                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
-                                                <p class="mb-0 pb-0 text-dark">trim-type</p>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="#">Action</a></li>
-                                              <li><a class="dropdown-item" href="#">Another action</a></li>
-                                              <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                            </ul>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="col border border-dark">
-                            
-                                        <div class="dropdown">
-                                            <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
-                                                <p class="mb-0 pb-0 text-dark">trim-type</p>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                              <li><a class="dropdown-item" href="#">Action</a></li>
-                                              <li><a class="dropdown-item" href="#">Another action</a></li>
-                                              <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="dropdown">
-                                <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="/static/img/signal-processing-images/trim.png" class="img-fluid">
-                                    <p class="mb-0 pb-0 text-dark">trim-type</p>
-                                </button>
-                                <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" href="#">Action</a></li>
-                                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                                  <li><a class="dropdown-item" href="#">Something else here</a></li>
-                                </ul>
-                            </div>
-                            
-                        </div>
-                        <div class="col border border-dark">
-                            <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
-                        </div>
-                        <div class="col border border-dark">
-                            <p class="text-center mt-5 fs-3"><button class="btn btn-success" id="upload-button-top">Save</button> the processed waveforms...</p>
-                        </div>
-          
-                    </div>
-                </div>
-            </div>
+            </div>  
         </div>
-    </section> -->
+    </section>
+
+
 
 
     <section id="graph-section">
-
         <div class="container-lg bg-dark text-light rounded mb-5 ps-0 pe-0" id="graph-area-div">
             
             <div class="text-center mt-5 bg-white text-dark" id="spinner-div">
@@ -367,16 +287,33 @@
                 </div>
             </div>
             <div id="graph">
-                <p class="text-center fs-2" id="upload-file-paragraph">Start by 
-                    <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
-                    <button class="btn btn-info upload-button" id="upload-button-bottom">uploading</button> 
-                    an <code>mseed</code> file...
-                </p>
+                <div id="upload-file-paragraph">
+                    <p class="text-center fs-2 lead" >Start by 
+                        <input type="file" id="upload-input" value="upload-input" name="upload-input" style="display: none;">
+                        <button class="btn btn-info upload-button" id="upload-button-bottom">uploading</button> 
+                        an <code>mseed</code> file...
+                        
+                    </p>
+                    <p class="text-center fs-5 lead">or <button class="btn btn-info upload-button" id="load-button-bottom">load</button> an existing one, to test it.</p>
+                </div>
+                
                 
             </div>
         </div>
         
     </section>
+
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id="toast-body">
+            Hello, world! This is a toast message.
+            </div>
+        </div>
+    </div>
 
         
        

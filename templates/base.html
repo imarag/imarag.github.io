@@ -38,6 +38,8 @@
                 left: 0;
             }
 
+ 
+
         </style>
         
     </head>
@@ -46,38 +48,32 @@
         
 
         <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+            <nav class="navbar navbar-expand-lg bg-dark navbar-dark text-light">
                 <div class="container-fluid">
-                    <a class="navbar-brand fs-4 me-5" href="/templates/index.html">
+                    
+                    <a class="navbar-brand text-light" href="#">
                         <img src="/static/img/index-images/waveform-handcrafted.png" width="100" height="60" class="me-2">SeismoWeb
                     </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                        <ul class="navbar-nav">
+                    <div class="collapse navbar-collapse" id="navbarToggler">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                             <li class="nav-item">
-                                <a class="nav-link active anchor-underline" aria-current="page" href="/templates/index.html">Home</a>
+                                <a class="nav-link active text-light anchor-underline" aria-current="page" href="/templates/index.html">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link anchor-underline" href="/templates/all-topics-page.html">All topics</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link anchor-underline" href="#">Donating</a>
+                                <a class="nav-link text-light anchor-underline" href="#">Donating</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle anchor-underline" href="#" id="navbar-topics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Seismological topics
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbar-topics">
+                                <a class="nav-link text-light anchor-underline">Seismological topics</a>
+                                <ul class="dropdown-menu" aria-labelledby="navbar-interactive-topics">
                                     <li><a class="dropdown-item" href="/templates/obspy-page.html">Python Obspy</a></li>
                                     <li><a class="dropdown-item" href="#">Site effect</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle anchor-underline" href="#" id="navbar-interactive-topics" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    interactive pages
-                                </a>
+                                <a class="nav-link text-light anchor-underline">Interactive pages</a>
                                 <ul class="dropdown-menu" aria-labelledby="navbar-interactive-topics">
                                     <li><a class="dropdown-item" href="/templates/pick-arrivals.html">P & S wave arrival time selection</a></li>
                                     <li><a class="dropdown-item" href="/templates/signal-processing-page.html">Signal processing techniques</a></li>
@@ -86,9 +82,15 @@
                                 </ul>
                             </li>
                         </ul>
+                        
+                            <a href="/templates/login.html" class="btn btn-success me-3" id="login-anchor">Login <img src="/static/img/login-images/box-arrow-in-right.svg" class="img-fluid"></a>
+                            <a href="/templates/register.html" class="btn btn-primary" id="register-anchor">Register <img src="/static/img/login-images/person.svg" class="img-fluid"></a>
+                         
                     </div>
                 </div>
             </nav>
+            
+
         </header>
 
         <main class="main-block">

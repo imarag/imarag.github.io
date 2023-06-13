@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory, send_file
+from flask import Flask, render_template, url_for, abort, request, jsonify, session, Response, session, send_from_directory, send_file, redirect
 import os
 from flask_session import Session
 from flask_compress import Compress
@@ -10,18 +10,42 @@ import numpy as np
 import gzip
 import io
 import pandas as pd
+import datetime
+import uuid
+import sqlite3
+from flask_sqlalchemy import SQLAlchemy
+from flask import flash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__, static_folder="static")
 app.secret_key = '12345asdfg6789lkj'
 
-uploaded_mseed_file_path = os.path.join(app.root_path, "static-data", "uploaded-mseed-file.mseed")
-test_mseed_file_path = os.path.join(app.root_path, "static-data", "test.mseed")
 
-def convert_mseed_to_object(stream):
+# ------------------configure the sqlite database-------------------------
+
+app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SeismoWeb.sqlite3'
+db = SQLAlchemy(app)
+
+class SeismoUsers(db.Model):
+    __tablename__ = 'SeismoUsers'
+    email = db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+    fullname = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    registered_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+# create once
+if not os.path.exists('mydatabase.db'):
+    with app.app_context():
+        db.create_all()
+
+#-------------------------------------------------------------------------
+
+def convert_mseed_to_json(stream):
     traces_data_dict = {}
-    starttime = stream[0].stats["starttime"].isoformat()
-    fs = float(stream[0].stats["sampling_rate"])
-    station = stream[0].stats["station"]
+    first_trace = stream[0]
+    starttime = first_trace.stats["starttime"].isoformat()
+    fs = float(first_trace.stats["sampling_rate"])
+    station = first_trace.stats["station"]
     for n, trace in enumerate(stream):
         ydata = trace.data.tolist()
         xdata = trace.times().tolist()
@@ -35,11 +59,305 @@ def convert_mseed_to_object(stream):
                 'station':station, 
                 'channel': trace.stats["channel"]
             },
-            'warning-message': '',
             }
         traces_data_dict[f'trace-{n}'] = trace_data
    
-    return traces_data_dict
+    return jsonify(traces_data_dict)
+
+
+def generate_error_response(message):
+    response = jsonify({'error-message': message})
+    response.status_code = 400
+    return response
+
+
+
+#------------------------templates----------------------
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        query = "SELECT * FROM SeismoUsers WHERE email = :email"
+        result = db.engine.execute(query, email=email)
+        user = result.fetchone()
+        users = SeismoUsers.query.all()
+
+        if not user:
+            message = 'User not found!'
+            flash(message, 'error')
+            return redirect(url_for('login'))
+            
+     
+        hashed_password = user['password']
+        if not check_password_hash(hashed_password, password):
+            message = 'Invalid password!'
+            flash(message, 'error')
+            return redirect(url_for('login'))
+        
+        message = 'succesfully logged in!'
+        flash(message, 'success')
+        return redirect(url_for('home'))
+    
+    return render_template('login.html')
+    
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        fullname = request.form['fullname']
+        email = request.form['email']
+        password = request.form['password']
+
+        if not fullname: 
+            message = "You didn't provide any full name!"
+            flash(message, 'error')
+            return redirect(url_for('register'))
+            
+        
+        if not email:
+            message = "You didn't provide any email!"
+            flash(message, 'error')
+            return redirect(url_for('register'))
+            
+        
+        if not password:
+            message = "You didn't provide any password!"
+            flash(message, 'error')
+            return redirect(url_for('register'))
+            
+
+
+        # Check if the email is already registered
+        query = "SELECT * FROM SeismoUsers WHERE email = :email"
+        params = {'email': email}
+        result = db.engine.execute(query, email=email)
+        user = result.fetchone()
+        if user:
+            message = 'User already exists!'
+            flash(message, 'error')
+            return redirect(url_for('register'))
+            
+
+        # Create a new user
+        hashed_password = generate_password_hash(password)
+        query = "INSERT INTO SeismoUsers (fullname, email, password) VALUES (:fullname, :email, :password)"
+        params = {'email': email, 'password': hashed_password, 'fullname': fullname}
+        db.engine.execute(query, email=email, password=hashed_password, fullname=fullname)
+        db.session.commit()
+
+        message = 'Succesfully registered!'
+        flash(message, 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+    
+
+@app.route('/templates/<page>', methods=['GET'])
+def html_page(page):
+    template_full_path = os.path.join(app.root_path, 'templates', page)
+    if os.path.exists(template_full_path):
+        return render_template(page)
+    else:
+        return render_template('page-not-found.html')
+    
+
+
+
+
+#------------------------functions----------------------
+
+
+
+@app.route('/upload-mseed-file', methods=['GET', 'POST'])
+def upload():
+    global unique_session_id
+   
+    # check if file exists
+    if 'file' not in request.files or len(request.files) < 1:
+        generate_error_response('No file uploaded!')
+
+    # Get the uploaded file from the request
+    mseed_file = request.files['file']
+    # get the page that triggered the mseed file upload
+    view_page = request.form['view-page']
+
+    # Read the MSeed file using obspy
+    try:
+        stream = read(mseed_file)
+    except Exception as e:
+        generate_error_response(str(e))
+
+    # if the stream has 0 or more that 3 traces abort
+    if len(stream) <= 0 or len(stream) > 3:
+        error_message = f'The stream must contain up to three traces. Your stream contains {len(stream)} traces!'
+        generate_error_response(error_message)
+
+    # if at least one of the traces is empty abort
+    for tr in stream:
+        if len(tr.data) == 0:
+            error_message = 'One or more of your traces in the stream object, is empty.'
+            generate_error_response(error_message)
+
+    # if the user hasn't defined nor the fs neither the delta, then error
+    if stream[0].stats['sampling_rate'] == 1 and stream[0].stats['delta'] == 1:
+        error_message = 'Neither sampling rate (fs[Hz]) nor sample distance (delta[sec]) are specified in the trace objects. Consider including them in the stream traces, for the correct x-axis time representation!'
+        generate_error_response(error_message)
+
+    unique_session_id = uuid.uuid4()
+
+    session['user-unique-id'] = unique_session_id
+  
+    # define the path of the written uploaded file
+    raw_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file.mseed")
+    # write the uploaded file
+    stream.write(raw_mseed_file_path)
+
+    if view_page == 'signal-processing':
+        processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+        stream.write(processed_mseed_file_path)
+
+
+    # convert the uploaded mseed file to json
+    json_data = convert_mseed_to_json(stream)
+    return json_data
+
+
+@app.route("/load-test-mseed-file", methods=["GET"])
+def load_test_mseed_file():
+
+    # read the test file in the server and
+    # assign the path of the loaded file to the raw_mseed_file_path variable
+    test_mseed_path = os.path.join(app.root_path, "static-data", f"test.mseed")
+
+    view_page = request.form['view-page']
+
+    # Read the MSeed file using obspy
+    try:
+        stream = read(test_mseed_path)
+    except Exception as e:
+        generate_error_response(str(e))
+    
+    unique_session_id = uuid.uuid4()
+
+    session['user-unique-id'] = unique_session_id
+    
+    # define the path of the written uploaded file
+    raw_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file.mseed")
+    # write the uploaded file
+    stream.write(raw_mseed_file_path)
+
+    if view_page == 'signal-processing':
+        processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+        stream.write(processed_mseed_file_path)
+
+
+    # convert the uploaded mseed file to json
+    json_data = convert_mseed_to_json(stream)
+    return json_data
+
+
+
+@app.route("/apply-processing-taper", methods=["GET"])
+def process_signal_taper():
+
+    processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+    
+    mseed_data = read(processed_mseed_file_path)
+    starttime = mseed_data[0].stats.starttime
+    total_seconds = mseed_data[0].stats.endtime - starttime
+
+    taper_length = request.args.get('taper-length-input')
+    taper_side = request.args.get('taper-side-select')
+    taper_type = request.args.get('taper-type-select')
+
+    if not taper_length:
+        taper_length = 0.3
+
+    mseed_data.taper(float(taper_length), type=taper_type, side=taper_side)
+    mseed_data.write(processed_mseed_file_path)
+    json_data = convert_mseed_to_json(mseed_data)
+    return json_data
+
+@app.route("/apply-processing-detrend", methods=["GET"])
+def process_signal_detrend():
+    
+    processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+    
+    mseed_data = read(processed_mseed_file_path)
+    starttime = mseed_data[0].stats.starttime
+    total_seconds = mseed_data[0].stats.endtime - starttime
+    
+    
+    detrend_type = request.args.get('detrend-type-select')
+    mseed_data.detrend(type=detrend_type)
+    mseed_data.write(processed_mseed_file_path)
+    json_data = convert_mseed_to_json(mseed_data)
+    return json_data
+
+
+
+@app.route("/apply-processing-trim", methods=["GET"])
+def process_signal_trim():
+    
+    processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+    
+    mseed_data = read(processed_mseed_file_path)
+    starttime = mseed_data[0].stats.starttime
+    total_seconds = mseed_data[0].stats.endtime - starttime
+    trim_left_side = request.args.get('trim-left-side-input')
+    trim_right_side = request.args.get('trim-right-side-input')
+
+    if not trim_left_side:
+        trim_left_side = 0
+    if not trim_right_side:
+        trim_right_side = total_seconds
+
+    if float(trim_left_side) >= float(trim_right_side):
+        error_message = 'The left side cannot be greater or equal to the right side!'
+        generate_error_response(error_message)
+    
+    mseed_data.trim(starttime=starttime+float(trim_left_side), endtime=starttime+float(trim_right_side))
+    mseed_data.write(processed_mseed_file_path)
+    json_data = convert_mseed_to_json(mseed_data)
+    return json_data
+
+@app.route("/delete-applied-filter", methods=["GET"])
+def delete_filter():
+    raw_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file.mseed")
+    
+    mseed_data = read(raw_mseed_file_path)
+    starttime = mseed_data[0].stats.starttime
+    total_seconds = mseed_data[0].stats.endtime - starttime
+    
+    filter_string = request.args.get('filter')
+
+    all_filters = filter_string.split()
+    for filt in all_filters:
+        if 'detrend' in filt:
+            detrend_type = filt.split('-')[1].strip()
+            mseed_data.detrend(type=detrend_type)
+        elif 'taper' in filt:
+            taper_type = filt.split('-')[1].strip()
+            taper_side = filt.split('-')[2].strip()
+            taper_length = float(filt.split('-')[3].strip())
+            mseed_data.taper(float(taper_length), type=taper_type, side=taper_side)
+        elif 'trim' in filt:
+            trim_left_side = float(filt.split('-')[1].strip())
+            trim_right_side = float(filt.split('-')[2].strip())
+            mseed_data.trim(starttime=starttime+float(trim_left_side), endtime=starttime+float(trim_right_side))
+    
+    processed_mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file-processed.mseed")
+    mseed_data.write(processed_mseed_file_path)
+    
+    json_data = convert_mseed_to_json(mseed_data)
+    return json_data
 
 
 
@@ -69,74 +387,18 @@ def download():
 
 
 
-@app.route('/upload-mseed-file', methods=['POST'])
-def upload():
-
-    if 'file' not in request.files:
-        return 'No file uploaded', 400
-
-    # Get the uploaded file from the request
-    mseed_file = request.files['file']
-    view_page = request.form['view-page']
-    
-    error_message = ''
-    warning_message = ''
-
-    # Read the MSeed file using obspy
-    try:
-        stream = read(mseed_file)
-    except Exception as e:
-        error_message = str(e)
-        response = jsonify({'error-message': error_message})
-        response.status_code = 400
-        return response
-    
-    if view_page == 'pick-arrivals':
-        if len(stream[0].data) > 100000:
-            error_message = 'The stream that you provided contains too many data (>100.000). Please trim it before uploading it.'
-    
-
-    if len(stream) <= 0 or len(stream) > 3:
-        error_message = f'The stream must contain one, two or three traces. Your stream contains {len(stream)} traces!'
-
-    if stream[0].stats['sampling_rate'] == 1 and stream[0].stats['delta'] == 1:
-        error_message = 'Neither sampling rate (fs[Hz]) nor sample distance (delta[sec]) are specified in the trace objects. Consider including them in the stream traces, for the correct x-axis time representation!'
-
-    for tr in stream:
-        if len(tr.data) == 0:
-            error_message = 'One or more of your traces in your stream object, is empty.'
-    if error_message:
-        response = jsonify({'error-message': error_message})
-        response.status_code = 400
-        return response
-    
-    stream.write(uploaded_mseed_file_path)
-    
-    converted_stream = convert_mseed_to_object(stream)
-
-    if warning_message:
-        converted_stream['warning-message'] = warning_message
-
-    json_data = jsonify(converted_stream)
-    return json_data
 
 
-@app.route("/load-test-mseed-file", methods=["GET"])
-def load_test_mseed_file():
-    stream = read(test_mseed_file_path)
-    stream.write(uploaded_mseed_file_path)
-    converted_stream = convert_mseed_to_object(stream)
 
-    json_data = jsonify(converted_stream)
-    return json_data
+
 
 
 @app.route("/apply-filter", methods=["GET"])
 def apply_filter():
-
+    mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file.mseed")
     filter_value = request.args.get('filter')
     error_message = ''
-    mseed_data = read(uploaded_mseed_file_path)
+    mseed_data = read(mseed_file_path)
     try:
         if filter_value != 'initial':
             freqmin = filter_value.split('-')[0]
@@ -157,63 +419,16 @@ def apply_filter():
     except Exception as e:
         print(e)
     
-    converted_mseed_data = convert_mseed_to_object(mseed_data)
+    json_data = convert_mseed_to_json(mseed_data)
 
-    json_data = jsonify(converted_mseed_data)
-    
     return json_data
     
 
-@app.route("/apply-processing", methods=["GET"])
-def process_signal():
-
-    processing_value = request.args.get('method')
-
-    mseed_data = read(uploaded_mseed_file_path)
-    starttime = mseed_data[0].stats.starttime
-    total_seconds = mseed_data[0].stats.endtime - starttime
-
-    if processing_value == 'detrend':
-        detrend_type = request.args.get('detrend-type')
-        mseed_data.detrend(type=detrend_type)
-
-    elif processing_value == 'taper':
-        taper_length = request.args.get('taper-length')
-        taper_side = request.args.get('taper-side')
-        taper_type = request.args.get('taper-type')
-        if not taper_length:
-            taper_length = 0.3
-        mseed_data.taper(float(taper_length), type=taper_type, side=taper_side)
-    
-    elif processing_value == 'trim':
-        trim_left_side = request.args.get('trim-left-side')
-        trim_right_side = request.args.get('trim-right-side')
-
-        if not trim_left_side:
-            trim_left_side = 0
-        if not trim_right_side:
-            trim_right_side = total_seconds
-
-        if float(trim_left_side) >= float(trim_right_side):
-            error_message = 'The left side cannot be greater or equal to the right side!'
-            response = jsonify({'error-message': error_message})
-            response.status_code = 400
-            return response
-        
-        mseed_data.trim(starttime=starttime+float(trim_left_side), endtime=starttime+float(trim_right_side))
-    
-    mseed_data.write(uploaded_mseed_file_path)
-
-    converted_mseed_data = convert_mseed_to_object(mseed_data)
-
-    json_data = jsonify(converted_mseed_data)
-    
-    return json_data
 
 @app.route('/compute-fourier', methods=['GET'])
 def compute_fourier():
-
-    mseed_data = read(uploaded_mseed_file_path)
+    mseed_file_path = os.path.join(app.root_path, "static-data", f"user-{session['user-unique-id']}-mseed-file.mseed")
+    mseed_data = read(mseed_file_path)
     first_trace = mseed_data[0]
     starttime = first_trace.stats.starttime
     total_duration = first_trace.stats.endtime - first_trace.stats.starttime
@@ -344,47 +559,7 @@ def upload_file():
 
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-
-
-
-@app.route('/templates/all-topics-page.html', methods=['GET'])
-def all_topics_view():
-    search_string = request.args.get('search-string')
-    with open('all-topics-info.json', 'r') as f:
-        data = json.load(f)
-    if not search_string:
-        all_topics_dict = data['all-topics']
-    else:
-        lt = []
-        for tp_dct in data['all-topics']:
-            if search_string in tp_dct["title"]:
-                lt.append(tp_dct)
-        all_topics_dict = lt
-    return render_template('all-topics-page.html', all_topics_dict = all_topics_dict)
-
-    
-
-@app.route('/templates/<page>', methods=['GET'])
-def html_page(page):
-    if '.html' in page:
-        template_page = page
-    else:
-        template_page = page + '.html'
-    template_full_path = os.path.join(app.template_folder, template_page)
-    if os.path.exists(template_full_path):
-        return render_template(template_page)
-    else:
-        abort(404)
-
-
-    
-@app.errorhandler(404)
-def page_not_found(error):
-    return "Page not found"
 
 if __name__ == '__main__':
     app.run(debug=True)

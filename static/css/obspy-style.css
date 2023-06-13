@@ -28,7 +28,32 @@
     color: rgba(166, 167, 167, 0.961);
 }
 
+.function {
+    background-color: #414141;
+    border-radius: 3px;
+    border: 1px solid #b4b4b4;
+   
+    color: #fdfdfd;
+    display: inline-block;
+    font-size: 0.85em;
+    font-weight: 500;
+    line-height: 1;
+    padding: 2px 5px;
+    white-space: nowrap;
+}
 
+.reference {
+    color: #d23871;
+    font-weight: 500;
+}
+
+.reference-link {
+
+}
+
+.indent {
+    margin-left: 50px;
+}
 
 pre {
     white-space: pre-line;
